@@ -17,4 +17,12 @@ public class AuthController {
     public String securedData() {
         return "Secured data";
     }
+    @GetMapping("/admin")
+    public String adminData() {
+        return "Admin data";
+    }
+    @GetMapping("/info")
+    public String userData(Principal principal) {
+        return principal.getName();
+    }
 }
