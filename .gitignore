@@ -3,7 +3,6 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
 resources/secrets.properties
 
 ### STS ###
@@ -33,3 +32,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/src/main/resources/secrets.properties
