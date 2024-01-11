@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
+//TODO: consider using custom Exception
 public class AuthException {
     private int status;
     private String message;

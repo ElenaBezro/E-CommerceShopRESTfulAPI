@@ -1,4 +1,4 @@
-package com.bezro.shopRESTfulAPI.Repositories;
+package com.bezro.shopRESTfulAPI.repositories;
 
 import com.bezro.shopRESTfulAPI.entities.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
