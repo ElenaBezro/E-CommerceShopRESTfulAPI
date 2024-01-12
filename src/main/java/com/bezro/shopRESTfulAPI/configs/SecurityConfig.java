@@ -1,5 +1,6 @@
 package com.bezro.shopRESTfulAPI.configs;
 
+import com.bezro.shopRESTfulAPI.constants.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,20 +24,13 @@ public class SecurityConfig {
     private final UserDetailsService userService;
     private final JwtRequestFilter jwtRequestFilter;
     private final PasswordEncoder passwordEncoder;
-    private static final String[] AUTH_WHITELIST = {
-            "/api/v1/auth/**",
-            "/v3/api-docs/**",
-            "/v3/api-docs.yaml",
-            "/swagger-ui/**",
-            "/swagger-ui.html"
-    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers(SecurityConstants.AUTH_WHITELIST).permitAll()
                         .requestMatchers("/api/v1/auth/secured").authenticated() //for test purposes
                         .requestMatchers("/api/v1/auth/info").authenticated() //for test purposes
                         .requestMatchers("/api/v1/auth/admin").hasRole("ADMIN") //for test purposes
