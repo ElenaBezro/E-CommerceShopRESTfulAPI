@@ -1,9 +1,10 @@
 package com.bezro.shopRESTfulAPI.services;
 
-import com.bezro.shopRESTfulAPI.repositories.UserRepository;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.entities.UserRole;
+import com.bezro.shopRESTfulAPI.exceptions.RoleNotFoundException;
+import com.bezro.shopRESTfulAPI.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,13 +39,12 @@ public class UserService implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(
-                String.format("User '%s' not found", username)));
+    public UserDetails loadUserByUsername(String username) {
+        return findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
     }
 
     //TODO: validate user
-    //TODO: check if role exists?
 
     public User createNewUser(RegistrationUserDto registrationUserDto) {
         User user = new User();

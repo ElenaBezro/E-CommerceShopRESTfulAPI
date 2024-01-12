@@ -1,14 +1,16 @@
 package com.bezro.shopRESTfulAPI.services;
 
-import com.bezro.shopRESTfulAPI.dtos.LoginUserDto;
 import com.bezro.shopRESTfulAPI.dtos.JwtResponse;
+import com.bezro.shopRESTfulAPI.dtos.LoginUserDto;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.dtos.UserDto;
 import com.bezro.shopRESTfulAPI.entities.User;
-import com.bezro.shopRESTfulAPI.exceptions.AuthException;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidLoginCredentialsException;
+import com.bezro.shopRESTfulAPI.exceptions.PasswordMismatchException;
+import com.bezro.shopRESTfulAPI.exceptions.RoleNotFoundException;
+import com.bezro.shopRESTfulAPI.exceptions.UserAlreadyExistsException;
 import com.bezro.shopRESTfulAPI.jwtUtils.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,14 +29,11 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public ResponseEntity<?> login(@RequestBody LoginUserDto loginRequest) {
-        //TODO: use Global exception handler
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(new AuthException(HttpStatus.UNAUTHORIZED.value(),
-                    "Login or password is incorrect"),
-                    HttpStatus.UNAUTHORIZED);
+            throw new InvalidLoginCredentialsException("Login or password is invalid");
         }
         UserDetails userDetails = userService.loadUserByUsername(loginRequest.getUsername());
         String token = jwtTokenUtils.generateToken(userDetails);
@@ -43,16 +42,11 @@ public class AuthService {
 
     //TODO: should I make this method transactional?
     public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto) {
-        //TODO: use Global exception handler
         if (!registrationUserDto.getPassword().equals(registrationUserDto.getConfirmPassword())) {
-            return new ResponseEntity<>(new AuthException(HttpStatus.BAD_REQUEST.value(),
-                    "Passwords do not match"),
-                    HttpStatus.BAD_REQUEST);
+            throw new PasswordMismatchException("Passwords do not match");
         }
         if (userService.findByUsername(registrationUserDto.getUsername()).isPresent()) {
-            return new ResponseEntity<>(new AuthException(HttpStatus.BAD_REQUEST.value(),
-                    String.format("User with username %s already exists", registrationUserDto.getUsername())),
-                    HttpStatus.BAD_REQUEST);
+            throw new UserAlreadyExistsException(String.format("User with username %s already exists", registrationUserDto.getUsername()));
         }
         User user = userService.createNewUser(registrationUserDto);
         //TODO: return token in UserDto also?
