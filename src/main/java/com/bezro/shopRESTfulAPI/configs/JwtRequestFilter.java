@@ -1,5 +1,6 @@
 package com.bezro.shopRESTfulAPI.configs;
 
+import com.bezro.shopRESTfulAPI.constants.JwtConstants;
 import com.bezro.shopRESTfulAPI.jwtUtils.JwtTokenUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -22,11 +23,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader(JwtConstants.AUTHORIZATION_HEADER_NAME);
         String username = null;
         String jwt = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith(JwtConstants.AUTHORIZATION_HEADER_STARTS_WITH)) {
             jwt = authHeader.substring(7);
             try {
                 username = jwtTokenUtils.getUsername(jwt);
