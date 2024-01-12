@@ -3,6 +3,8 @@ package com.bezro.shopRESTfulAPI.controllers;
 import com.bezro.shopRESTfulAPI.dtos.LoginUserDto;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.services.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +14,12 @@ import java.security.Principal;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Tag(description="auth", name="auth")
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
+    @Operation(description="test data")
     public ResponseEntity<?> login(@RequestBody LoginUserDto loginRequest) {
         return authService.login(loginRequest);
     }
