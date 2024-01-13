@@ -3,7 +3,6 @@ package com.bezro.shopRESTfulAPI.services;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.entities.UserRole;
-import com.bezro.shopRESTfulAPI.exceptions.RoleNotFoundException;
 import com.bezro.shopRESTfulAPI.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

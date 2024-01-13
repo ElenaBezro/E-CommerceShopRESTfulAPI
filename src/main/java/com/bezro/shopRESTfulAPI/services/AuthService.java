@@ -7,7 +7,6 @@ import com.bezro.shopRESTfulAPI.dtos.UserDto;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidLoginCredentialsException;
 import com.bezro.shopRESTfulAPI.exceptions.PasswordMismatchException;
-import com.bezro.shopRESTfulAPI.exceptions.RoleNotFoundException;
 import com.bezro.shopRESTfulAPI.exceptions.UserAlreadyExistsException;
 import com.bezro.shopRESTfulAPI.jwtUtils.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
