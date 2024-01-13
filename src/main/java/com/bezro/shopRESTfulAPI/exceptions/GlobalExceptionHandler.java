@@ -8,27 +8,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler({PasswordMismatchException.class})
+    @ExceptionHandler({
+            PasswordMismatchException.class,
+            UserAlreadyExistsException.class,
+            UserWithEmailAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiException> handlePasswordMismatchException(PasswordMismatchException exception) {
+    public ResponseEntity<ApiException> handlePasswordMismatchException(RuntimeException exception) {
         ApiException apiException = new ApiException(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
         return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
     }
-
-    @ExceptionHandler({UserAlreadyExistsException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiException> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
-        ApiException apiException = new ApiException(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
-        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler({UserWithEmailAlreadyExistsException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiException> handleUserWithEmailAlreadyExistsException(UserWithEmailAlreadyExistsException exception) {
-        ApiException apiException = new ApiException(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
-        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
-    }
-
 
     @ExceptionHandler({InvalidLoginCredentialsException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
