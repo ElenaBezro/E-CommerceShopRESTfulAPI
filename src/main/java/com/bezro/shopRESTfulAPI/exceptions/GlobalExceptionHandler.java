@@ -22,6 +22,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({UserWithEmailAlreadyExistsException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiException> handleUserWithEmailAlreadyExistsException(UserWithEmailAlreadyExistsException exception) {
+        ApiException apiException = new ApiException(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
+        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+    }
+
+
     @ExceptionHandler({InvalidLoginCredentialsException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ApiException> handleInvalidLoginCredentialsException(InvalidLoginCredentialsException exception) {

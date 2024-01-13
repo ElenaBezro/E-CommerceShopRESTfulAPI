@@ -8,6 +8,7 @@ import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidLoginCredentialsException;
 import com.bezro.shopRESTfulAPI.exceptions.PasswordMismatchException;
 import com.bezro.shopRESTfulAPI.exceptions.UserAlreadyExistsException;
+import com.bezro.shopRESTfulAPI.exceptions.UserWithEmailAlreadyExistsException;
 import com.bezro.shopRESTfulAPI.jwtUtils.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +44,11 @@ public class AuthService {
         if (!registrationUserDto.getPassword().equals(registrationUserDto.getConfirmPassword())) {
             throw new PasswordMismatchException("Passwords do not match");
         }
-        if (userService.findByUsername(registrationUserDto.getUsername()).isPresent()) {
+        if (userService.existsByUsername(registrationUserDto.getUsername())) {
             throw new UserAlreadyExistsException(String.format("User with username %s already exists", registrationUserDto.getUsername()));
+        }
+        if (userService.existsByEmail(registrationUserDto.getEmail())) {
+            throw new UserWithEmailAlreadyExistsException(String.format("User with e-mail %s already exists", registrationUserDto.getEmail()));
         }
         User user = userService.createNewUser(registrationUserDto);
         //TODO: return token in UserDto also?

@@ -36,6 +36,14 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) {
