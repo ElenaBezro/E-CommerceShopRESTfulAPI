@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({RoleNotFoundException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ApiException> handleInvalidRoleNameException(RoleNotFoundException exception) {
-        ApiException apiException = new ApiException(HttpStatus.UNAUTHORIZED.value(), exception.getMessage());
+        ApiException apiException = new ApiException(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
         return new ResponseEntity<>(apiException, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
