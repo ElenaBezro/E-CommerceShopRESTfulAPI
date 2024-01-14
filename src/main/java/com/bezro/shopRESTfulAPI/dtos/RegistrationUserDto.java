@@ -1,9 +1,15 @@
 package com.bezro.shopRESTfulAPI.dtos;
 
+import com.bezro.shopRESTfulAPI.validation.PasswordMatching;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
+@PasswordMatching(
+        password = "password",
+        confirmPassword = "confirmPassword",
+        message = "Password and Confirm Password must be matched!"
+)
 public class RegistrationUserDto {
     @NotBlank(message = "The username is required.")
     @Size(min = 3, max = 20, message = "The username must be from 3 to 20 characters.")
@@ -17,6 +23,6 @@ public class RegistrationUserDto {
     private String confirmPassword;
 
     @Email(message = "The email is not a valid email.")
-    @NotEmpty(message = "The email is required.")
+    @NotBlank(message = "The email is required.")
     private String email;
 }
