@@ -14,7 +14,6 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler({
-            PasswordMismatchException.class,
             UserAlreadyExistsException.class,
             UserWithEmailAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
