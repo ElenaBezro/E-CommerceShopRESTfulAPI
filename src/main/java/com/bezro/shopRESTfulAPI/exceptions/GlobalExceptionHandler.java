@@ -43,6 +43,6 @@ public class GlobalExceptionHandler {
         List<String> errors = new ArrayList<>();
         exception.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         ApiRequestException apiRequestException = new ApiRequestException(HttpStatus.BAD_REQUEST.value(), errors);
-        return new ResponseEntity<ApiRequestException>(apiRequestException, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiRequestException, HttpStatus.BAD_REQUEST);
     }
 }
