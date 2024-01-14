@@ -36,7 +36,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Login or password is incorrect.",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
-    public ResponseEntity<?> login(@RequestBody LoginUserDto loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginUserDto loginRequest) {
         return authService.login(loginRequest);
     }
 
