@@ -6,7 +6,6 @@ import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.dtos.UserDto;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidLoginCredentialsException;
-import com.bezro.shopRESTfulAPI.exceptions.PasswordMismatchException;
 import com.bezro.shopRESTfulAPI.exceptions.UserAlreadyExistsException;
 import com.bezro.shopRESTfulAPI.exceptions.UserWithEmailAlreadyExistsException;
 import com.bezro.shopRESTfulAPI.jwtUtils.JwtTokenUtils;
@@ -16,7 +15,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -41,9 +39,6 @@ public class AuthService {
 
     //TODO: should I make this method transactional?
     public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto) {
-        if (!registrationUserDto.getPassword().equals(registrationUserDto.getConfirmPassword())) {
-            throw new PasswordMismatchException("Passwords do not match");
-        }
         if (userService.existsByUsername(registrationUserDto.getUsername())) {
             throw new UserAlreadyExistsException(String.format("User with username %s already exists", registrationUserDto.getUsername()));
         }
