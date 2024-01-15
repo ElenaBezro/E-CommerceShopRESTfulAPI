@@ -4,7 +4,7 @@ import com.bezro.shopRESTfulAPI.dtos.JwtResponse;
 import com.bezro.shopRESTfulAPI.dtos.LoginUserDto;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.dtos.UserDto;
-import com.bezro.shopRESTfulAPI.exceptions.AuthException;
+import com.bezro.shopRESTfulAPI.exceptions.*;
 import com.bezro.shopRESTfulAPI.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,29 +23,29 @@ import java.security.Principal;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
-@Tag(description="Endpoints for registration and login", name="Auth")
+@Tag(description = "Endpoints for registration and login", name = "Auth")
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    @Operation(summary = "Login", description = "Login", tags = { "Auth" })
+    @Operation(summary = "Login", description = "Login", tags = {"Auth"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = JwtResponse.class))),
             @ApiResponse(responseCode = "401", description = "Login or password is incorrect.",
-                    content = @Content(schema = @Schema(implementation = AuthException.class)))
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public ResponseEntity<?> login(@RequestBody LoginUserDto loginRequest) {
         return authService.login(loginRequest);
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Registration", description = "Registration", tags = { "Auth" })
+    @Operation(summary = "Registration", description = "Registration", tags = {"Auth"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "400", description = "User with username [username] already exists.",
-                    content = @Content(schema = @Schema(implementation = AuthException.class)))
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public ResponseEntity<?> registerUser(@RequestBody RegistrationUserDto registrationRequest) {
         return authService.createNewUser(registrationRequest);
@@ -57,7 +57,10 @@ public class AuthController {
         return "Unsecured data";
     }
 
-    @Parameter(in= ParameterIn.HEADER, description = "Authorization token", name = "JWT", content = @Content(schema = @Schema(type = "string")))
+    @Parameter(in = ParameterIn.HEADER,
+            description = "Authorization token",
+            name = "JWT",
+            content = @Content(schema = @Schema(type = "string")))
     @GetMapping("/secured")
     public String securedData() {
         return "Secured data";
