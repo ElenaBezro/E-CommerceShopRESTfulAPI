@@ -7,3 +7,4 @@ spring.config.import=optional:secrets.properties
    spring.datasource.username=your_db_username
    spring.datasource.password=your_db_password
 
+SWAGGER http://localhost:8080/swagger-ui/index.html

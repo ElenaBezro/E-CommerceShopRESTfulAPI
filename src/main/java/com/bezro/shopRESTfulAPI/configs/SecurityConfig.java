@@ -1,5 +1,6 @@
 package com.bezro.shopRESTfulAPI.configs;
 
+import com.bezro.shopRESTfulAPI.constants.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,11 +30,10 @@ public class SecurityConfig {
         http
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/auth/login").permitAll()
-                        .requestMatchers("/api/v1/auth/register").permitAll()
-                        .requestMatchers("/api/v1/auth/secured").authenticated()
-                        .requestMatchers("/api/v1/auth/info").authenticated()
-                        .requestMatchers("/api/v1/auth/admin").hasRole("ADMIN")
+                        .requestMatchers(SecurityConstants.AUTH_WHITELIST).permitAll()
+                        .requestMatchers("/api/v1/auth/secured").authenticated() //for test purposes
+                        .requestMatchers("/api/v1/auth/info").authenticated() //for test purposes
+                        .requestMatchers("/api/v1/auth/admin").hasRole("ADMIN") //for test purposes
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
