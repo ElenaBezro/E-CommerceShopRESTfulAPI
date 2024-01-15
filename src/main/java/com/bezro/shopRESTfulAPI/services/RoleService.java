@@ -1,7 +1,8 @@
 package com.bezro.shopRESTfulAPI.services;
 
-import com.bezro.shopRESTfulAPI.repositories.RoleRepository;
 import com.bezro.shopRESTfulAPI.entities.Role;
+import com.bezro.shopRESTfulAPI.exceptions.RoleNotFoundException;
+import com.bezro.shopRESTfulAPI.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Service;
 public class RoleService {
     private final RoleRepository roleRepository;
 
-    //TODO: or use Optional?
     public Role findByName(String userRole) {
-        return roleRepository.findByName(userRole).get();
+        return roleRepository.findByName(userRole).
+                orElseThrow(() -> new RoleNotFoundException("Invalid role:" + userRole));
     }
 }
