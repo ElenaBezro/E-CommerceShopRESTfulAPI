@@ -39,7 +39,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiRequestException> handleNotValidException(MethodArgumentNotValidException exception, HttpServletRequest request) {
-        System.out.println("MethodArgumentNotValidException");
         List<String> errors = new ArrayList<>();
         exception.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         ApiRequestException apiRequestException = new ApiRequestException(HttpStatus.BAD_REQUEST.value(), errors);
