@@ -5,6 +5,7 @@ import com.bezro.shopRESTfulAPI.dtos.LoginUserDto;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.dtos.UserDto;
 import com.bezro.shopRESTfulAPI.exceptions.ApiException;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidLoginCredentialsException;
 import com.bezro.shopRESTfulAPI.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +17,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -27,6 +30,7 @@ import java.security.Principal;
 @Tag(description = "Endpoints for registration and login", name = "Auth")
 public class AuthController {
     private final AuthService authService;
+    private final AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Login", tags = {"Auth"})
@@ -35,8 +39,15 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = JwtResponse.class))),
             @ApiResponse(responseCode = "401", description = "Login or password is incorrect.",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
+            //TODO: add @ApiResponse invalid request data responses, user not found?
     })
-    public ResponseEntity<?> login(@Valid @RequestBody LoginUserDto loginRequest) {
+    public JwtResponse login(@Valid @RequestBody LoginUserDto loginRequest) {
+
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        } catch (BadCredentialsException e) {
+            throw new InvalidLoginCredentialsException("Login or password is invalid");
+        }
         return authService.login(loginRequest);
     }
 
@@ -47,8 +58,9 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "400", description = "User with username [username] already exists.",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
+            //TODO: add @ApiResponse "invalid request data" cases, invalid role, user with email already exists
     })
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationUserDto registrationRequest) {
+    public UserDto registerUser(@Valid @RequestBody RegistrationUserDto registrationRequest) {
         return authService.createNewUser(registrationRequest);
     }
 
