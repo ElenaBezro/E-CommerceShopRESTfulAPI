@@ -17,8 +17,4 @@ public class Role {
 
     @Column(unique = true, nullable = false)
     private String name;
-
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<User> users = new ArrayList<>();
 }
