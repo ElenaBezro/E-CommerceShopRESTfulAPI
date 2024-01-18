@@ -4,6 +4,7 @@ import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.entities.Role;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.repositories.UserRepository;
+import com.bezro.shopRESTfulAPI.services.impl.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -112,7 +113,7 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldReturnFalse_WhenDoesNotExistsByUsername() {
+    void shouldReturnFalse_WhenDoesNotExistByUsername() {
         // Arrange
         when(userRepository.existsByUsername(eq("User"))).thenReturn(false);
 
@@ -120,7 +121,7 @@ class UserServiceTest {
         Boolean isExist = userService.existsByUsername("User");
 
         // Assert
-        assertEquals(isExist, false, "Should be False when user does not exists");
+        assertEquals(isExist, false, "Should be False when user does not exist");
     }
 
     @Test
@@ -141,7 +142,7 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldReturnFalse_WhenDoesNotExistsByEmail() {
+    void shouldReturnFalse_WhenDoesNotExistByEmail() {
         // Arrange
         when(userRepository.existsByEmail(eq("test@email.com"))).thenReturn(false);
 
@@ -149,7 +150,7 @@ class UserServiceTest {
         Boolean isExist = userService.existsByEmail("test@email.com");
 
         // Assert
-        assertEquals(isExist, false, "Should be False when user does not exists");
+        assertEquals(isExist, false, "Should be False when user does not exist");
     }
 
     @Test
