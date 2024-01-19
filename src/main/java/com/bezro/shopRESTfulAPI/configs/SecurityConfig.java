@@ -4,6 +4,7 @@ import com.bezro.shopRESTfulAPI.constants.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -31,11 +32,14 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers("/api/v1/auth/admin").hasRole("ADMIN") //for test purposes
                         .requestMatchers(SecurityConstants.AUTH_WHITELIST).permitAll()
-                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/v1/auth/secured").authenticated() //for test purposes
                         .requestMatchers("/api/v1/auth/info").authenticated() //for test purposes
-                        .requestMatchers("/api/v1/auth/admin").hasRole("ADMIN") //for test purposes
+                        .requestMatchers(HttpMethod.POST,"/api/v1/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/products").permitAll()
+                        .requestMatchers("/error").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
