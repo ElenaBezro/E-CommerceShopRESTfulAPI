@@ -8,6 +8,8 @@ import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.exceptions.UserAlreadyExistsException;
 import com.bezro.shopRESTfulAPI.exceptions.UserWithEmailAlreadyExistsException;
 import com.bezro.shopRESTfulAPI.jwtUtils.JwtTokenUtils;
+import com.bezro.shopRESTfulAPI.services.impl.AuthServiceImpl;
+import com.bezro.shopRESTfulAPI.services.impl.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +33,7 @@ class AuthServiceTest {
     private JwtTokenUtils jwtTokenUtils;
 
     @InjectMocks
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @Test
     void shouldReturnJwtResponseWithToken_WhenUserExists() {

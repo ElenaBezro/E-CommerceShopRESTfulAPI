@@ -3,6 +3,7 @@ package com.bezro.shopRESTfulAPI.services;
 import com.bezro.shopRESTfulAPI.entities.Role;
 import com.bezro.shopRESTfulAPI.exceptions.RoleNotFoundException;
 import com.bezro.shopRESTfulAPI.repositories.RoleRepository;
+import com.bezro.shopRESTfulAPI.services.impl.RoleServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +22,7 @@ class RoleServiceTest {
     RoleRepository roleRepository;
 
     @InjectMocks
-    private RoleService roleService;
+    private RoleServiceImpl roleService;
 
     @Test
     void shouldReturnRole_WhenFindByName() {

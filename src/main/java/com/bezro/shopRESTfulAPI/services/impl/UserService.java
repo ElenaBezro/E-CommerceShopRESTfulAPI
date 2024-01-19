@@ -1,9 +1,10 @@
-package com.bezro.shopRESTfulAPI.services;
+package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.entities.UserRole;
 import com.bezro.shopRESTfulAPI.repositories.UserRepository;
+import com.bezro.shopRESTfulAPI.services.RoleService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
