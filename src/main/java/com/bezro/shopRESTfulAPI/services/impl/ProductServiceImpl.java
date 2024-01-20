@@ -2,6 +2,7 @@ package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.CreateProductDto;
 import com.bezro.shopRESTfulAPI.entities.Product;
+import com.bezro.shopRESTfulAPI.exceptions.NoContentException;
 import com.bezro.shopRESTfulAPI.repositories.ProductRepository;
 import com.bezro.shopRESTfulAPI.services.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,11 @@ public class ProductServiceImpl implements ProductService {
             pageable = PageRequest.of(pageNumber, pageSize);
         }
         Page<Product> productPage = productRepository.findAll(pageable);
+
+        if (!productPage.hasContent()) {
+            //TODO: response is not as expected (ApiException.class). I got empty body. Why?
+            throw new NoContentException("No Content");
+        }
 
         Map<String, Object> response = new HashMap<>();
 
