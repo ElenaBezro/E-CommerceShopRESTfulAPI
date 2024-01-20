@@ -33,13 +33,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/v1/auth/admin").hasRole("ADMIN") //for test purposes
-                        .requestMatchers(SecurityConstants.AUTH_WHITELIST).permitAll()
-                        .requestMatchers("/api/v1/auth/secured").authenticated() //for test purposes
                         .requestMatchers("/api/v1/auth/info").authenticated() //for test purposes
-                        .requestMatchers(HttpMethod.POST,"/api/v1/products").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET,"/api/v1/products").permitAll()
+                        .requestMatchers("/api/v1/auth/secured").authenticated() //for test purposes
+                        .requestMatchers(SecurityConstants.AUTH_WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/products").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
-
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
