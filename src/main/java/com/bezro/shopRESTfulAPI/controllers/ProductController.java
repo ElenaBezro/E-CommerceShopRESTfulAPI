@@ -22,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,12 +70,11 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = Product.class))),
     })
-    public List<Product> getProducts(
-            @Parameter(description = "Page number", example = "1", required = true) @RequestParam Integer pageNumber,
-            @Parameter(description = "Page size", example = "10", required = true) @RequestParam Integer pageSize) {
+    public Map<String, Object> getProducts(
+            @Parameter(description = "Page number", example = "1", required = true) @RequestParam int pageNumber,
+            @Parameter(description = "Page size", example = "10", required = true) @RequestParam int pageSize) {
 
-        Page<Product> data = productService.getProductsPagination(pageNumber, pageSize, null);
-        return data.getContent();
+        return productService.getProductsPagination(pageNumber, pageSize, null);
     }
 
     @GetMapping(params = {"pageNumber", "pageSize", "sort"})
@@ -83,13 +83,12 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = Product.class)))
     })
-    public List<Product> getProducts(
-            @Parameter(description = "Page number", example = "1", required = true) @RequestParam Integer pageNumber,
-            @Parameter(description = "Page size", example = "10", required = true) @RequestParam Integer pageSize,
+    public Map<String, Object> getProducts(
+            @Parameter(description = "Page number", example = "1", required = true) @RequestParam int pageNumber,
+            @Parameter(description = "Page size", example = "10", required = true) @RequestParam int pageSize,
             @Parameter(description = "Sort order", example = "name", required = true) @RequestParam String sort) {
 
-        Page<Product> data = productService.getProductsPagination(pageNumber, pageSize, sort);
-        return data.getContent();
+        return productService.getProductsPagination(pageNumber, pageSize, sort);
     }
 
 }

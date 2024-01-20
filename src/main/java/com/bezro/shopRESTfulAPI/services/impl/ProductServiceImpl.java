@@ -11,6 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -25,13 +28,22 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
-    public Page<Product> getProductsPagination(Integer pageNumber, Integer pageSize, String sort) {
+    public Map<String, Object> getProductsPagination(int pageNumber, int pageSize, String sort) {
         Pageable pageable = null;
         if (sort != null) {
             pageable = PageRequest.of(pageNumber, pageSize, Sort.Direction.ASC, sort);
         } else {
             pageable = PageRequest.of(pageNumber, pageSize);
         }
-        return productRepository.findAll(pageable);
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("products", productPage.getContent());
+        response.put("currentPage", productPage.getNumber());
+        response.put("totalItems", productPage.getTotalElements());
+        response.put("totalPages", productPage.getTotalPages());
+
+        return response;
     }
 }
