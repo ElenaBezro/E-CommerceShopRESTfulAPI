@@ -71,8 +71,8 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = Product.class))),
     })
     public Map<String, Object> getProducts(
-            @Parameter(description = "Page number", example = "1", required = true) @RequestParam int pageNumber,
-            @Parameter(description = "Page size", example = "10", required = true) @RequestParam int pageSize) {
+            @Parameter(description = "Page number", example = "1", required = true) @RequestParam(defaultValue = "0") int pageNumber,
+            @Parameter(description = "Page size", example = "10", required = true) @RequestParam(defaultValue = "5") int pageSize) {
 
         return productService.getProductsPagination(pageNumber, pageSize, null);
     }
@@ -84,9 +84,9 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = Product.class)))
     })
     public Map<String, Object> getProducts(
-            @Parameter(description = "Page number", example = "1", required = true) @RequestParam int pageNumber,
-            @Parameter(description = "Page size", example = "10", required = true) @RequestParam int pageSize,
-            @Parameter(description = "Sort order", example = "name", required = true) @RequestParam String sort) {
+            @Parameter(description = "Page number", example = "1", required = true) @RequestParam(defaultValue = "0") int pageNumber,
+            @Parameter(description = "Page size", example = "10", required = true) @RequestParam(defaultValue = "5") int pageSize,
+            @Parameter(description = "Sort order", example = "name", required = true) @RequestParam(defaultValue = "name") String sort) {
 
         return productService.getProductsPagination(pageNumber, pageSize, sort);
     }
