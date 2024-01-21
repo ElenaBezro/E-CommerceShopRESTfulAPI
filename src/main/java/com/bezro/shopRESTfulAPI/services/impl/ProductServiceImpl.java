@@ -42,6 +42,12 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
+    public void deleteProduct(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() ->
+                new InvalidRequestParametersException(String.format("Product with id: %d does not exist", id)));
+        productRepository.delete(product);
+    }
+
     public Map<String, Object> getProductsPagination(int pageNumber, int pageSize, String sort) {
         Pageable pageable = null;
         if (sort != null) {

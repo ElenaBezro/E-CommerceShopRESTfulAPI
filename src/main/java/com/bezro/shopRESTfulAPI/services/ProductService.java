@@ -10,6 +10,8 @@ public interface ProductService {
 
     void updateProduct(Long id, CreateProductDto productDto);
 
+    void deleteProduct(Long id);
+
     Map<String, Object> getProductsPagination(int pageNumber, int pageSize, String sort);
 
 }

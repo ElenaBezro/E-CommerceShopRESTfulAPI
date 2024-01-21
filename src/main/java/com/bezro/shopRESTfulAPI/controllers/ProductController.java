@@ -41,9 +41,9 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = Product.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.ADD_PRODUCT_BAD_REQUEST_MESSAGE,
                     content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden",
+            @ApiResponse(responseCode = "403", description = "Forbidden. Only administrators can access this page",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
-            @ApiResponse(responseCode = "401", description = "Only administrators can access this page.",
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public Product addProduct(
@@ -100,9 +100,11 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = Product.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.UPDATE_PRODUCT_BAD_REQUEST_MESSAGE,
                     content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden",
+            @ApiResponse(responseCode = "400", description = "Invalid id",
+                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden. Only administrators can access this page",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
-            @ApiResponse(responseCode = "401", description = "Only administrators can access this page.",
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public void updateProduct(
@@ -121,4 +123,23 @@ public class ProductController {
         productService.updateProduct(id, productDto);
     }
 
+    @DeleteMapping("/{id}")
+    @Parameter(in = ParameterIn.HEADER,
+            description = "Authorization token",
+            name = "JWT",
+            content = @Content(schema = @Schema(type = "string")))
+    @Operation(summary = "Delete a product", description = "Admin can delete a product", tags = {"DeleteProduct"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = Product.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid id",
+                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden. Only administrators can access this page",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
+    })
+    public void deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+    }
 }
