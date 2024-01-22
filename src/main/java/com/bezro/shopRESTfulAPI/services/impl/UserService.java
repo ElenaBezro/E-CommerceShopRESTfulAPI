@@ -3,6 +3,7 @@ package com.bezro.shopRESTfulAPI.services.impl;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.entities.UserRole;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.repositories.UserRepository;
 import com.bezro.shopRESTfulAPI.services.RoleService;
 import jakarta.transaction.Transactional;
@@ -31,8 +32,15 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    //TODO: delete (not in use)
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    //TODO: rename to findById and adjust findById tests
+    public User findByIdOrThrow(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new InvalidMethodArgumentsException(
+                String.format("User with id: %d does not exist", id)));
     }
 
     public Optional<UserDetails> findByUsername(String username) {
@@ -75,6 +83,6 @@ public class UserService implements UserDetailsService {
     public boolean isUserMatchPrincipal(Long id, Principal principal) {
         String principalName = principal.getName();
 
-        return Objects.equals(principalName, findById(id).get().getUsername());
+        return Objects.equals(principalName, findByIdOrThrow(id).getUsername());
     }
 }
