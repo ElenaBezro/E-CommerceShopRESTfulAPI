@@ -5,8 +5,8 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class InvalidRequestParametersException extends RuntimeException {
-    public InvalidRequestParametersException(String message) {
+public class InvalidMethodArgumentsException extends RuntimeException {
+    public InvalidMethodArgumentsException(String message) {
         super(message);
     }
 }
