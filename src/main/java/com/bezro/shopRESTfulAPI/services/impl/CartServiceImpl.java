@@ -70,11 +70,5 @@ public class CartServiceImpl implements CartService {
         cartItem.setQuantity(cartItemDto.getQuantity());
         cartRepository.save(cartItem);
     }
-//
-//    public void deleteCartItem(Long id) {
-//        CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
-//                new InvalidMethodArgumentsException(String.format("Product with id: %d does not exist", id)));
-//        cartRepository.delete(cartItem);
-//    }
 
 }
