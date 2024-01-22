@@ -20,13 +20,14 @@ public class CartServiceImpl implements CartService {
 
 
     public CartItem addCartItem(CreateCartItemDto cartItemDto, Principal principal) {
+        //TODO: check if product Quantity >= cart Item Quantity
         CartItem cartItem;
         Long productId = cartItemDto.getProductId();
         Long userId = cartItemDto.getUserId();
 
         if (existsByProductId(productId)) {
             cartItem = findCartItemByProductId(productId);
-            updateCartItemQuantity(cartItem.getId(), cartItemDto, principal);
+            return updateCartItemQuantity(cartItem.getId(), cartItemDto, principal);
         } else {
             cartItem = new CartItem();
             cartItem.setProduct(productService.findById(productId));
@@ -36,7 +37,6 @@ public class CartServiceImpl implements CartService {
 
             return cartRepository.save(cartItem);
         }
-        return null;
     }
 
     private void userMatchPrincipalCheck(Long userId, Principal principal) {
@@ -56,7 +56,8 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new InvalidMethodArgumentsException(String.format("Cart item with product id: %d does not exist", productId)));
     }
 
-    public void updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, Principal principal) {
+    public CartItem updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, Principal principal) {
+        //TODO: check if product Quantity >= cart Item Quantity
         Long userId = cartItemDto.getUserId();
         Long productId = cartItemDto.getProductId();
 
@@ -69,7 +70,7 @@ public class CartServiceImpl implements CartService {
         userMatchPrincipalCheck(userId, principal);
         cartItem.setQuantity(cartItemDto.getQuantity());
 
-        cartRepository.save(cartItem);
+        return cartRepository.save(cartItem);
     }
 
 }
