@@ -62,4 +62,13 @@ public class UserService implements UserDetailsService {
         user.setRoles(Set.of(roleService.findByName(UserRole.USER.getName())));
         return userRepository.save(user);
     }
+
+    public void createNewAdmin(RegistrationUserDto registrationUserDto) {
+        User user = new User();
+        user.setUsername(registrationUserDto.getUsername());
+        user.setEmail(registrationUserDto.getEmail());
+        user.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
+        user.setRoles(Set.of(roleService.findByName(UserRole.ADMIN.getName())));
+        userRepository.save(user);
+    }
 }

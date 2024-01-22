@@ -44,4 +44,11 @@ public class GlobalExceptionHandler {
         ApiRequestException apiRequestException = new ApiRequestException(HttpStatus.BAD_REQUEST.value(), errors);
         return new ResponseEntity<>(apiRequestException, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler({NoContentException.class})
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<ApiException> handleNoContentException(NoContentException exception) {
+        ApiException apiException = new ApiException(HttpStatus.NO_CONTENT.value(), exception.getMessage());
+        return new ResponseEntity<>(apiException, HttpStatus.NO_CONTENT);
+    }
 }
