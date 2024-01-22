@@ -2,7 +2,7 @@ package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.CreateProductDto;
 import com.bezro.shopRESTfulAPI.entities.Product;
-import com.bezro.shopRESTfulAPI.exceptions.InvalidRequestParametersException;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.exceptions.NoContentException;
 import com.bezro.shopRESTfulAPI.repositories.ProductRepository;
 import com.bezro.shopRESTfulAPI.services.ProductService;
@@ -30,9 +30,14 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
+    public Product findById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new InvalidMethodArgumentsException(
+                        String.format("Product with id: %d does not exist", id)));
+    }
+
     public void updateProduct(Long id, CreateProductDto productDto) {
-        Product product = productRepository.findById(id).orElseThrow(() ->
-                new InvalidRequestParametersException(String.format("Product with id: %d does not exist", id)));
+        Product product = findById(id);
         //TODO: use ModelMapper to map data from DTO to the entity
         //    modelMapper.map(productDto, product) ?
         product.setName(productDto.getName());
@@ -43,8 +48,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public void deleteProduct(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() ->
-                new InvalidRequestParametersException(String.format("Product with id: %d does not exist", id)));
+        Product product = findById(id);
         productRepository.delete(product);
     }
 

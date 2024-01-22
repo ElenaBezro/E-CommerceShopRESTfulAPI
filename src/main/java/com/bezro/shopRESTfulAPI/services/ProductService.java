@@ -8,6 +8,8 @@ import java.util.Map;
 public interface ProductService {
     Product addProduct(CreateProductDto productDto);
 
+    Product findById(Long id);
+
     void updateProduct(Long id, CreateProductDto productDto);
 
     void deleteProduct(Long id);
