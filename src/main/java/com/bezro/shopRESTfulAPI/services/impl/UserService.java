@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -52,8 +54,6 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
     }
 
-    //TODO: validate user
-
     public User createNewUser(RegistrationUserDto registrationUserDto) {
         User user = new User();
         user.setUsername(registrationUserDto.getUsername());
@@ -70,5 +70,11 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
         user.setRoles(Set.of(roleService.findByName(UserRole.ADMIN.getName())));
         userRepository.save(user);
+    }
+
+    public boolean isUserMatchPrincipal(Long id, Principal principal) {
+        String principalName = principal.getName();
+
+        return Objects.equals(principalName, findById(id).get().getUsername());
     }
 }

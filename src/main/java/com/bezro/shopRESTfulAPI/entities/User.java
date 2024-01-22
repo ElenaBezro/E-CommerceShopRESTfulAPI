@@ -3,6 +3,7 @@ package com.bezro.shopRESTfulAPI.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Data
+@Getter
 @NoArgsConstructor
 @Table(name = "users")
 //TODO: use Builder pattern (@Builder)
