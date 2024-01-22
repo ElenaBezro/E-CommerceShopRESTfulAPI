@@ -19,10 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -61,5 +58,42 @@ public class CartController {
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, Principal principal) {
         return cartService.addCartItem(cartItemDto, principal);
+    }
+
+    //TODO: Maybe use Patch?
+    @PutMapping("/{id}")
+    @Parameter(in = ParameterIn.HEADER,
+            description = "Authorization token",
+            name = "JWT",
+            content = @Content(schema = @Schema(type = "string")))
+    @Operation(summary = "Update a cart item quantity", description = "Update a cart item quantity", tags = {"UpdateCartItemQuantity"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = Product.class))),
+            @ApiResponse(responseCode = "400", description = ResponseMessages.ADD_CART_ITEM_BAD_REQUEST_MESSAGE,
+                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid cart item id",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid product id",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid user id",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
+    })
+    public CartItem updateCartItemQuantity(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Cart item details",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CreateCartItemDto.class),
+                            examples = @ExampleObject(
+                                    value = "{\"productId\": 100, \"userId\": 10, \"quantity\":1.5}"
+                            )
+                    )
+            )
+            @Valid @RequestBody CreateCartItemDto cartItemDto, @PathVariable Long id, Principal principal) {
+        return cartService.updateCartItemQuantity(id, cartItemDto, principal);
     }
 }
