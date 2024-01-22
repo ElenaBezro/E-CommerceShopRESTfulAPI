@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -73,14 +74,23 @@ public class CartServiceImpl implements CartService {
 
         CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
                 new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
+        cartItemValidRecordCheck(cartItem, cartItemDto);
         //TODO: use ModelMapper to map data from DTO to the entity
         //    modelMapper.map(cartItemDto, cartItem) ?
-        cartItem.setProduct(product);
-        cartItem.setUser(userService.findByIdOrThrow(userId));
+
         userMatchPrincipalCheck(userId, principal);
         cartItem.setQuantity(cartItemDto.getQuantity());
 
         return cartRepository.save(cartItem);
+    }
+
+    private void cartItemValidRecordCheck(CartItem cartItem, CreateCartItemDto cartItemDto) {
+        boolean isSameProduct = Objects.equals(cartItem.getProduct().getId(), cartItemDto.getProductId());
+        boolean isSameUser = Objects.equals(cartItem.getUser().getId(), cartItemDto.getUserId());
+        if (!(isSameProduct && isSameUser)) {
+            throw new InvalidMethodArgumentsException(
+                    "Cart item record with such combination of cartItemId, productId and userId does not exist");
+        }
     }
 
 }
