@@ -72,8 +72,7 @@ public class CartServiceImpl implements CartService {
         Product product = productService.findById(productId);
         sufficientProductStockCheck(product, cartItemDto);
 
-        CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
-                new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
+        CartItem cartItem = findById(id);
         cartItemValidRecordCheck(cartItem, cartItemDto);
         //TODO: use ModelMapper to map data from DTO to the entity
         //    modelMapper.map(cartItemDto, cartItem) ?
@@ -82,6 +81,11 @@ public class CartServiceImpl implements CartService {
         cartItem.setQuantity(cartItemDto.getQuantity());
 
         return cartRepository.save(cartItem);
+    }
+
+    public CartItem findById(Long id) {
+        return cartRepository.findById(id).orElseThrow(() ->
+                new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
     }
 
     private void cartItemValidRecordCheck(CartItem cartItem, CreateCartItemDto cartItemDto) {
