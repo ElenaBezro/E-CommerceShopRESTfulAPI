@@ -3,6 +3,7 @@ package com.bezro.shopRESTfulAPI.services.impl;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.entities.UserRole;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.repositories.UserRepository;
 import com.bezro.shopRESTfulAPI.services.RoleService;
 import jakarta.transaction.Transactional;
@@ -13,6 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,8 +32,15 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    //TODO: delete (not in use)
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    //TODO: rename to findById and adjust findById tests
+    public User findByIdOrThrow(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new InvalidMethodArgumentsException(
+                String.format("User with id: %d does not exist", id)));
     }
 
     public Optional<UserDetails> findByUsername(String username) {
@@ -52,8 +62,6 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
     }
 
-    //TODO: validate user
-
     public User createNewUser(RegistrationUserDto registrationUserDto) {
         User user = new User();
         user.setUsername(registrationUserDto.getUsername());
@@ -70,5 +78,11 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
         user.setRoles(Set.of(roleService.findByName(UserRole.ADMIN.getName())));
         userRepository.save(user);
+    }
+
+    public boolean isUserMatchPrincipal(Long id, Principal principal) {
+        String principalName = principal.getName();
+
+        return Objects.equals(principalName, findByIdOrThrow(id).getUsername());
     }
 }

@@ -19,4 +19,10 @@ public class ResponseMessages {
             "        \"The email is not a valid email.\",\n" +
             "        \"The username must be from 3 to 20 characters.\"\n" +
             "    ]";
+
+    public static final String ADD_CART_ITEM_BAD_REQUEST_MESSAGE = "[\n" +
+            "        \"The id of the product is required\",\n" +
+            "        \"The id of the user is required\",\n" +
+            "        \"The quantity is required. Quantity must be positive\"\n" +
+            "    ]";
 }
