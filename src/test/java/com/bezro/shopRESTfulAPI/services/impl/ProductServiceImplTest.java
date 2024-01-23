@@ -139,4 +139,88 @@ class ProductServiceImplTest {
         assertEquals(exception.getMessage(), "Product with id: 1 does not exist", "Should have the same exception message");
     }
 
+    @Test
+    void shouldReturnObjectWithProducts_whenGetProductsPaginationWithoutSort() {
+        //Arrange
+        List<Product> paginatedProductsMock = new ArrayList<>();
+        paginatedProductsMock.add(productMock());
+
+        int pageNumber = 0;
+        int pageSize = 2;
+        long totalItems = paginatedProductsMock.size();
+
+        Map<String, Object> responseMock = createResponseMock(paginatedProductsMock, pageNumber, totalItems, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Product> productPage = new PageImpl<>(paginatedProductsMock, pageable, totalItems);
+
+        when(productRepository.findAll(eq(pageable))).thenReturn(productPage);
+
+        //Act
+        Map<String, Object> response = productService.getProductsPagination(pageNumber, pageSize, null);
+        List<Product> productsFromResponse = (List<Product>) response.get("products");
+
+        //Assert
+        assertEquals(response.size(), responseMock.size(), "Should have the same size");
+        assertTrue(response.containsKey("products"), "Should contain 'products' key");
+        assertTrue(response.containsKey("currentPage"), "Should contain 'currentPage' key");
+        assertTrue(response.containsKey("totalItems"), "Should contain 'totalItems' key");
+        assertTrue(response.containsKey("totalPages"), "Should contain 'totalPages' key");
+        assertEquals(response.get("products").toString(), responseMock.get("products").toString(), "Products list should match");
+        assertEquals(response.get("currentPage"), responseMock.get("currentPage"), "Current Page should match");
+        assertEquals(response.get("totalItems"), responseMock.get("totalItems"), "Total Items should match");
+        assertEquals(response.get("totalPages"), responseMock.get("totalPages"), "Total Pages should match");
+        assertEquals(paginatedProductsMock.get(0).getName(), productsFromResponse.get(0).getName(), "The first item should have 'ProductName'");
+    }
+
+    @Test
+    void shouldReturnObjectWithSortedProducts_whenGetProductsPaginationWithSort() {
+        //Arrange
+        List<Product> paginatedProductsMock = new ArrayList<>();
+        paginatedProductsMock.add(productMock());
+
+        int pageNumber = 0;
+        int pageSize = 2;
+        long totalItems = paginatedProductsMock.size();
+        String sort = "name";
+
+        Map<String, Object> responseMock = createResponseMock(paginatedProductsMock, pageNumber, totalItems, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.Direction.ASC, sort);
+        Page<Product> productPage = new PageImpl<>(paginatedProductsMock, pageable, totalItems);
+
+        when(productRepository.findAll(eq(pageable))).thenReturn(productPage);
+
+        //Act
+        Map<String, Object> response = productService.getProductsPagination(pageNumber, pageSize, sort);
+        List<Product> productsFromResponse = (List<Product>) response.get("products");
+
+        //Assert
+        assertEquals(responseMock.size(), response.size(), "Should have the same size");
+        assertTrue(response.containsKey("products"), "Should contain 'products' key");
+        assertTrue(response.containsKey("currentPage"), "Should contain 'currentPage' key");
+        assertTrue(response.containsKey("totalItems"), "Should contain 'totalItems' key");
+        assertTrue(response.containsKey("totalPages"), "Should contain 'totalPages' key");
+        assertEquals(responseMock.get("products").toString(), response.get("products").toString(), "Products list should match");
+        assertEquals(responseMock.get("currentPage"), response.get("currentPage"), "Current Page should match");
+        assertEquals(responseMock.get("totalItems"), response.get("totalItems"), "Total Items should match");
+        assertEquals(responseMock.get("totalPages"), response.get("totalPages"), "Total Pages should match");
+        assertEquals(paginatedProductsMock.get(0).getName(), productsFromResponse.get(0).getName(), "The first item should have 'ProductName'");
+    }
+
+    @Test
+    void shouldThrowNoContent_whenGetNonExistingProductsPage() {
+        // Arrange
+        int pageNumberWithNoContent = 10;
+        int pageSize = 2;
+        Pageable pageable = PageRequest.of(pageNumberWithNoContent, pageSize);
+        Page<Product> emptyProductPage = Page.empty();
+        when(productRepository.findAll(eq(pageable))).thenReturn(emptyProductPage);
+
+        // Act
+        // Assert
+        NoContentException exception = assertThrows(NoContentException.class,
+                () -> productService.getProductsPagination(pageNumberWithNoContent, pageSize, null),
+                "Getting a page with no content should throw NoContentException.");
+        assertEquals(exception.getMessage(), "No Content", "Should have the same exception message");
+        verify(productRepository, times(1)).findAll(any(Pageable.class));
+    }
 }
