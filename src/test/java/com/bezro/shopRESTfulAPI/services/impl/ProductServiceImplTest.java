@@ -2,7 +2,7 @@ package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.CreateProductDto;
 import com.bezro.shopRESTfulAPI.entities.Product;
-import com.bezro.shopRESTfulAPI.exceptions.InvalidRequestParametersException;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.exceptions.NoContentException;
 import com.bezro.shopRESTfulAPI.repositories.ProductRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -106,9 +106,9 @@ class ProductServiceImplTest {
 
         // Act
         // Assert
-        InvalidRequestParametersException exception = assertThrows(InvalidRequestParametersException.class,
+        InvalidMethodArgumentsException exception = assertThrows(InvalidMethodArgumentsException.class,
                 () -> productService.updateProduct(1L, createProductDto),
-                "Updating non-existing product should throw InvalidRequestParametersException.");
+                "Updating non-existing product should throw InvalidMethodArgumentsException.");
         assertEquals(exception.getMessage(), "Product with id: 1 does not exist", "Should have the same exception message");
     }
 
@@ -133,9 +133,9 @@ class ProductServiceImplTest {
 
         // Act
         // Assert
-        InvalidRequestParametersException exception = assertThrows(InvalidRequestParametersException.class,
+        InvalidMethodArgumentsException exception = assertThrows(InvalidMethodArgumentsException.class,
                 () -> productService.deleteProduct(1L),
-                "Deleting non-existing product should throw InvalidRequestParametersException.");
+                "Deleting non-existing product should throw InvalidMethodArgumentsException.");
         assertEquals(exception.getMessage(), "Product with id: 1 does not exist", "Should have the same exception message");
     }
 
