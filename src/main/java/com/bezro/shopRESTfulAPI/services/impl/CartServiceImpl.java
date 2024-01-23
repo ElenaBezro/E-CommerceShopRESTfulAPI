@@ -39,7 +39,7 @@ public class CartServiceImpl implements CartService {
         } else {
             cartItem = new CartItem();
             cartItem.setProduct(product);
-            cartItem.setUser(userService.findByIdOrThrow(userId));
+            cartItem.setUser(userService.findById(userId));
             userMatchPrincipalCheck(userId, principal);
             cartItem.setQuantity(cartItemDto.getQuantity());
 
@@ -102,9 +102,7 @@ public class CartServiceImpl implements CartService {
     }
 
     public List<CartItem> getAllCartItems(Principal principal) {
-        //TODO: move throw exception in userService
-        User user = (User) userService.findByUsername(principal.getName())
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", principal.getName())));
+        User user = (User) userService.findByUsername(principal.getName());
         Long userId = user.getId();
         Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
         return cartItemList.orElseGet(ArrayList::new);

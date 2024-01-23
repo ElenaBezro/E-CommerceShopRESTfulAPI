@@ -3,6 +3,7 @@ package com.bezro.shopRESTfulAPI.services;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.entities.Role;
 import com.bezro.shopRESTfulAPI.entities.User;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.repositories.UserRepository;
 import com.bezro.shopRESTfulAPI.services.impl.UserService;
 import org.junit.jupiter.api.Test;
@@ -48,25 +49,26 @@ class UserServiceTest {
         when(userRepository.findById(eq(1L))).thenReturn(Optional.of(userMock));
 
         // Act
-        Optional<User> user = userService.findById(1L);
+        User user = userService.findById(1L);
 
         // Assert
-        assertSame(user.orElse(null), userMock, "Should be the same object reference");
-        assertEquals(user.get().getUsername(), userMock.getUsername(), "Usernames should match");
-        assertEquals(user.get().getId(), userMock.getId(), "Ids should match");
-        assertEquals(user.get().getEmail(), userMock.getEmail(), "E-mails should match");
+        assertSame(user, userMock, "Should be the same object reference");
+        assertEquals(user.getUsername(), userMock.getUsername(), "Usernames should match");
+        assertEquals(user.getId(), userMock.getId(), "Ids should match");
+        assertEquals(user.getEmail(), userMock.getEmail(), "E-mails should match");
     }
 
     @Test
-    void shouldBeEmpty_WhenNotFoundById() {
+    void shouldThrowException_WhenNotFoundById() {
         // Arrange
         when(userRepository.findById(eq(1L))).thenReturn(Optional.empty());
 
         // Act
-        Optional<User> user = userService.findById(1L);
-
         // Assert
-        assertTrue(user.isEmpty(), "Should be empty");
+        InvalidMethodArgumentsException exception = assertThrows(InvalidMethodArgumentsException.class,
+                () -> userService.findById(1L),
+                "Getting non-existing user should throw InvalidMethodArgumentsException.");
+        assertEquals(exception.getMessage(), "User with id: 1 does not exist", "Should have the same exception message");
     }
 
     @Test
@@ -76,23 +78,23 @@ class UserServiceTest {
         when(userRepository.findByUsername(eq("User"))).thenReturn(Optional.of(userDetailsMock));
 
         // Act
-        Optional<UserDetails> user = userService.findByUsername("User");
+        UserDetails user = userService.findByUsername("User");
 
         // Assert
-        assertSame(user.orElse(null), userDetailsMock, "Should be the same object reference");
+        assertSame(user, userDetailsMock, "Should be the same object reference");
     }
 
     @Test
-    void shouldBeEmpty_WhenNotFoundByUsername() {
+    void shouldThrowException_WhenFindByInvalidUsername() {
         // Arrange
-        UserDetails userDetailsMock = new User();
         when(userRepository.findByUsername(eq("User"))).thenReturn(Optional.empty());
 
         // Act
-        Optional<UserDetails> user = userService.findByUsername("User");
-
         // Assert
-        assertTrue(user.isEmpty(), "Should be empty");
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,
+                () -> userService.findByUsername("User"),
+                "Getting non-existing user should throw InvalidMethodArgumentsException.");
+        assertEquals(exception.getMessage(), "User 'User' not found", "Should have the same exception message");
     }
 
     @Test
@@ -157,27 +159,13 @@ class UserServiceTest {
     void shouldReturnUser_WhenLoadByUsername() {
         // Arrange
         UserDetails userDetailsMock = new User();
-        when(userService.findByUsername(eq("User"))).thenReturn(Optional.of(userDetailsMock));
+        when(userRepository.findByUsername(eq("User"))).thenReturn(Optional.of(userDetailsMock));
 
         // Act
         UserDetails user = userService.loadUserByUsername("User");
 
         // Assert
         assertSame(user, userDetailsMock, "Should be the same object reference");
-    }
-
-    @Test
-    void shouldThrowUsernameNotFoundException_WhenLoadByUsername() {
-        // Arrange
-        when(userService.findByUsername(eq("User"))).thenReturn(Optional.empty());
-
-        // Act
-        // Assert
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,
-                () -> userService.loadUserByUsername("User"),
-                "Loading a non-existing user by username should throw UsernameNotFoundException.");
-        assertEquals(exception.getMessage(), "User 'User' not found");
-
     }
 
     @Test
