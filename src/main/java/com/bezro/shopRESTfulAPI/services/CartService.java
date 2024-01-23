@@ -7,5 +7,8 @@ import java.security.Principal;
 
 public interface CartService {
     CartItem addCartItem(CreateCartItemDto cartItemDto, Principal principal);
+
     CartItem updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, Principal principal);
+
+    void removeCartItem(Long id);
 }

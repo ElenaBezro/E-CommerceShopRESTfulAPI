@@ -60,7 +60,6 @@ public class CartController {
         return cartService.addCartItem(cartItemDto, principal);
     }
 
-    //TODO: Maybe use Patch?
     @PutMapping("/{id}")
     @Parameter(in = ParameterIn.HEADER,
             description = "Authorization token",
@@ -95,5 +94,23 @@ public class CartController {
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, @PathVariable Long id, Principal principal) {
         return cartService.updateCartItemQuantity(id, cartItemDto, principal);
+    }
+
+    @DeleteMapping("/{id}")
+    @Parameter(in = ParameterIn.HEADER,
+            description = "Authorization token",
+            name = "JWT",
+            content = @Content(schema = @Schema(type = "string")))
+    @Operation(summary = "Remove a cart item", description = "Remove a cart item", tags = {"RemoveCartItem"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = Product.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid cart item id",
+                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
+    })
+    public void removeCartItem(@PathVariable Long id) {
+        cartService.removeCartItem(id);
     }
 }
