@@ -32,19 +32,15 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    //TODO: delete (not in use)
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
-    }
-
-    //TODO: rename to findById and adjust findById tests
-    public User findByIdOrThrow(Long id) {
+    public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new InvalidMethodArgumentsException(
                 String.format("User with id: %d does not exist", id)));
     }
 
-    public Optional<UserDetails> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public UserDetails findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                        .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
+
     }
 
     public boolean existsByUsername(String username) {
@@ -58,8 +54,7 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) {
-        return findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
+        return findByUsername(username);
     }
 
     public User createNewUser(RegistrationUserDto registrationUserDto) {
@@ -83,6 +78,6 @@ public class UserService implements UserDetailsService {
     public boolean isUserMatchPrincipal(Long id, Principal principal) {
         String principalName = principal.getName();
 
-        return Objects.equals(principalName, findByIdOrThrow(id).getUsername());
+        return Objects.equals(principalName, findById(id).getUsername());
     }
 }
