@@ -7,7 +7,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerMethod;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Configuration
@@ -26,10 +27,32 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI springOpenAPI() {
         final String securitySchemeName = "bearerAuth";
+
+        Schema productSchema = new Schema<Object>()
+                .properties(Map.of(
+                        "id", new IntegerSchema(),
+                        "name", new StringSchema(),
+                        "description", new StringSchema(),
+                        "price", new NumberSchema(),
+                        "quantity", new NumberSchema())
+                );
+
+        Schema getProductsSchema = new Schema<Map<String, Object>>()
+                .type("object")
+                .addProperty("products", new ArraySchema().items(productSchema))
+                .addProperty("currentPage", new IntegerSchema())
+                .addProperty("totalItems", new IntegerSchema())
+                .addProperty("totalPages", new IntegerSchema());
+
         return new OpenAPI().addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                .components(new Components().addSecuritySchemes(securitySchemeName,
-                        new SecurityScheme().name(securitySchemeName).type(SecurityScheme.Type.HTTP).scheme("bearer")
-                                .bearerFormat("JWT")))
+                .components(new Components()
+                        .addSecuritySchemes(securitySchemeName, new SecurityScheme()
+                                .name(securitySchemeName)
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT"))
+                        .addSchemas("CustomResponse", getProductsSchema))
+
                 .info(new Info().title("Shop REST API").description("APIs for a shop").version("1.0")
                         .license(new License().name("Dev Team").url("https://github.com/ElenaBezro")))
                 .externalDocs(new ExternalDocumentation().description("App Documentation").url("https://github.com/ElenaBezro/E-CommerceShopRESTfulAPI/tree/dev"));
