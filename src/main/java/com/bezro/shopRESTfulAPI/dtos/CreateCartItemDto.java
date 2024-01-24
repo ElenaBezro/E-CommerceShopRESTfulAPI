@@ -1,7 +1,7 @@
 package com.bezro.shopRESTfulAPI.dtos;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
@@ -13,6 +13,6 @@ public class CreateCartItemDto {
     private Long userId;
 
     @NotNull(message = "The quantity is required.")
-    @Min(value = 0, message = "Quantity must be positive")
+    @Positive(message = "Quantity must be positive")
     private double quantity;
 }

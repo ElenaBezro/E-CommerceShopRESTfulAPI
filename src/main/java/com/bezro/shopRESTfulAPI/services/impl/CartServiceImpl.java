@@ -3,15 +3,20 @@ package com.bezro.shopRESTfulAPI.services.impl;
 import com.bezro.shopRESTfulAPI.dtos.CreateCartItemDto;
 import com.bezro.shopRESTfulAPI.entities.CartItem;
 import com.bezro.shopRESTfulAPI.entities.Product;
+import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.repositories.CartRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
 import com.bezro.shopRESTfulAPI.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -75,9 +80,6 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
                 new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
         cartItemValidRecordCheck(cartItem, cartItemDto);
-        //TODO: use ModelMapper to map data from DTO to the entity
-        //    modelMapper.map(cartItemDto, cartItem) ?
-
         userMatchPrincipalCheck(userId, principal);
         cartItem.setQuantity(cartItemDto.getQuantity());
 
@@ -93,4 +95,18 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    public void removeCartItem(Long id) {
+        CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
+                new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
+        cartRepository.delete(cartItem);
+    }
+
+    public List<CartItem> getAllCartItems(Principal principal) {
+        //TODO: move throw exception in userService
+        User user = (User) userService.findByUsername(principal.getName())
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", principal.getName())));
+        Long userId = user.getId();
+        Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
+        return cartItemList.orElseGet(ArrayList::new);
+    }
 }

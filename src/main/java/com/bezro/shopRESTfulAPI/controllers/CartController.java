@@ -4,7 +4,6 @@ import com.bezro.shopRESTfulAPI.constants.ResponseMessages;
 import com.bezro.shopRESTfulAPI.dtos.CreateCartItemDto;
 import com.bezro.shopRESTfulAPI.dtos.CreateProductDto;
 import com.bezro.shopRESTfulAPI.entities.CartItem;
-import com.bezro.shopRESTfulAPI.entities.Product;
 import com.bezro.shopRESTfulAPI.exceptions.ApiException;
 import com.bezro.shopRESTfulAPI.exceptions.ApiRequestException;
 import com.bezro.shopRESTfulAPI.services.CartService;
@@ -22,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +38,7 @@ public class CartController {
     @Operation(summary = "Add a cart item", description = "Add a cart item", tags = {"AddCartItem"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = Product.class))),
+                    content = @Content(schema = @Schema(implementation = CartItem.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.ADD_CART_ITEM_BAD_REQUEST_MESSAGE,
                     content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
@@ -60,7 +60,6 @@ public class CartController {
         return cartService.addCartItem(cartItemDto, principal);
     }
 
-    //TODO: Maybe use Patch?
     @PutMapping("/{id}")
     @Parameter(in = ParameterIn.HEADER,
             description = "Authorization token",
@@ -69,7 +68,7 @@ public class CartController {
     @Operation(summary = "Update a cart item quantity", description = "Update a cart item quantity", tags = {"UpdateCartItemQuantity"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = Product.class))),
+                    content = @Content(schema = @Schema(implementation = CartItem.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.ADD_CART_ITEM_BAD_REQUEST_MESSAGE,
                     content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
             @ApiResponse(responseCode = "400", description = "Invalid cart item id",
@@ -95,5 +94,32 @@ public class CartController {
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, @PathVariable Long id, Principal principal) {
         return cartService.updateCartItemQuantity(id, cartItemDto, principal);
+    }
+
+    @DeleteMapping("/{id}")
+    @Parameter(in = ParameterIn.HEADER,
+            description = "Authorization token",
+            name = "JWT",
+            content = @Content(schema = @Schema(type = "string")))
+    @Operation(summary = "Remove a cart item", description = "Remove a cart item", tags = {"RemoveCartItem"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "400", description = "Invalid cart item id",
+                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
+    })
+    public void removeCartItem(@PathVariable Long id) {
+        cartService.removeCartItem(id);
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all cart items", description = "Get a list of all cart items", tags = {"GetAllCartItems"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = List.class))),
+    })
+    public List<CartItem> getAllCartItems(Principal principal) {
+        return cartService.getAllCartItems(principal);
     }
 }
