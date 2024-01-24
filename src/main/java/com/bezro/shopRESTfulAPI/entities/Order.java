@@ -5,7 +5,7 @@ import lombok.Data;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Data
@@ -16,7 +16,7 @@ public class Order {
     private Long id;
 
     @Column(nullable = false)
-    private Date createdAt;
+    private Instant createdAt;
 
     @Column(nullable = false)
     private OrderStatus status;
