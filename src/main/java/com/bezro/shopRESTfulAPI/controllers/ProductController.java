@@ -67,7 +67,7 @@ public class ProductController {
     @Operation(summary = "Get all products", description = "Any unauthorized user can get a list of all products", tags = {"GetAllProducts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = List.class))),
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/CustomResponse")))
     })
     public Map<String, Object> getProducts(
             @Parameter(description = "Page number", example = "1", required = true) @RequestParam(defaultValue = "0") int pageNumber,
@@ -77,10 +77,10 @@ public class ProductController {
     }
 
     @GetMapping(params = {"pageNumber", "pageSize", "sort"})
-    @Operation(summary = "Get all products", description = "Any unauthorized user can get a list of all products", tags = {"GetAllProducts"})
+    @Operation(summary = "Get all products with sorting", description = "Any unauthorized user can get a list of all products", tags = {"GetAllProductsSorted"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = List.class)))
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/CustomResponse")))
     })
     public Map<String, Object> getProducts(
             @Parameter(description = "Page number", example = "1", required = true) @RequestParam(defaultValue = "0") int pageNumber,

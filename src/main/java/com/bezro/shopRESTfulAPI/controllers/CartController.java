@@ -10,6 +10,7 @@ import com.bezro.shopRESTfulAPI.services.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -117,7 +118,7 @@ public class CartController {
     @Operation(summary = "Get all cart items", description = "Get a list of all cart items", tags = {"GetAllCartItems"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = List.class))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CartItem.class)))),
     })
     public List<CartItem> getAllCartItems(Principal principal) {
         return cartService.getAllCartItems(principal);
