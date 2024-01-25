@@ -16,7 +16,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             UserAlreadyExistsException.class,
             UserWithEmailAlreadyExistsException.class,
-            InvalidMethodArgumentsException.class})
+            InvalidMethodArgumentsException.class,
+            ChangeFinalOrderStatusException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiException> handlePasswordMismatchException(RuntimeException exception) {
         ApiException apiException = new ApiException(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
