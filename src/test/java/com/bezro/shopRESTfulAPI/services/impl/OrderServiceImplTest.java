@@ -42,20 +42,20 @@ class OrderServiceImplTest {
         //Arrange
         List<Order> mockOrders = new ArrayList<>();
         Principal mockPrincipal = mock(Principal.class);
-        UserDetails user = mock(User.class);
+        UserDetails mockUserDetails = mock(User.class);
 
         Order order = new Order();
         order.setId(1L);
-        order.setUser((User) user);
+        order.setUser((User) mockUserDetails);
         long mockTimestampMillis = Instant.parse("2024-01-25T12:00:00Z").toEpochMilli();
         Instant mockInstant = Instant.ofEpochMilli(mockTimestampMillis);
         order.setCreatedAt(mockInstant);
         order.setStatus(OrderStatus.PROCESSING);
         mockOrders.add(order);
 
-        when(((User) user).getId()).thenReturn(1L);
+        when(((User) mockUserDetails).getId()).thenReturn(1L);
         when(mockPrincipal.getName()).thenReturn("User");
-        when(userService.findByUsername(eq("User"))).thenReturn(user);
+        when(userService.findByUsername(eq("User"))).thenReturn(mockUserDetails);
         when(orderRepository.findAllByUser_Id(eq(1L))).thenReturn(mockOrders);
 
         //Act
@@ -65,7 +65,7 @@ class OrderServiceImplTest {
         assertSame(mockOrders, response, "Should be the same object reference");
         assertEquals(mockOrders.size(), response.size(), "Should have the same size");
         assertEquals(1, response.get(0).getId(), "Ids should match");
-        assertEquals(user, response.get(0).getUser(), "Should be the same object reference");
+        assertEquals(mockUserDetails, response.get(0).getUser(), "Should be the same object reference");
         assertEquals(mockInstant, response.get(0).getCreatedAt(), "Timestamps should match");
         assertEquals(OrderStatus.PROCESSING, response.get(0).getStatus(), "Statuses should match");
     }
@@ -74,11 +74,11 @@ class OrderServiceImplTest {
     void shouldThrowNoContent_whenUserDoesNotHaveOrders() {
         // Arrange
         Principal mockPrincipal = mock(Principal.class);
-        UserDetails user = mock(User.class);
+        UserDetails mockUserDetails = mock(User.class);
 
-        when(((User) user).getId()).thenReturn(1L);
+        when(((User) mockUserDetails).getId()).thenReturn(1L);
         when(mockPrincipal.getName()).thenReturn("User");
-        when(userService.findByUsername(eq("User"))).thenReturn(user);
+        when(userService.findByUsername(eq("User"))).thenReturn(mockUserDetails);
         when(orderRepository.findAllByUser_Id(eq(1L))).thenReturn(new ArrayList<>());
 
         // Act
