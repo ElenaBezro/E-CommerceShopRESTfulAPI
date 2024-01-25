@@ -107,4 +107,10 @@ public class CartServiceImpl implements CartService {
         Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
         return cartItemList.orElseGet(ArrayList::new);
     }
+
+    //TODO: refactor two last methods: remove repeated code
+    public List<CartItem> getAllCartItems(Long userId) {
+        Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
+        return cartItemList.orElseGet(ArrayList::new);
+    }
 }

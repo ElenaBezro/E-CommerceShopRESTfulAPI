@@ -14,4 +14,6 @@ public interface CartService {
     void removeCartItem(Long id);
 
     List<CartItem> getAllCartItems(Principal principal);
+
+    List<CartItem> getAllCartItems(Long userId);
 }
