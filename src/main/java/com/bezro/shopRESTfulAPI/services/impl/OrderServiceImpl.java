@@ -1,6 +1,11 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
-import com.bezro.shopRESTfulAPI.entities.*;
+import com.bezro.shopRESTfulAPI.entities.CartItem;
+import com.bezro.shopRESTfulAPI.entities.Order;
+import com.bezro.shopRESTfulAPI.entities.OrderStatus;
+import com.bezro.shopRESTfulAPI.entities.User;
+import com.bezro.shopRESTfulAPI.exceptions.ChangeFinalOrderStatusException;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.repositories.OrderRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
 import com.bezro.shopRESTfulAPI.services.OrderItemService;
@@ -21,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserService userService;
     private final CartService cartService;
     private final OrderStatus INITIAL_ORDER_STATUS = OrderStatus.PROCESSING;
+    private final OrderStatus FINAL_ORDER_STATUS = OrderStatus.DELIVERED;
 
     @Transactional
     public Order createOrder(Principal principal) {
@@ -45,6 +51,23 @@ public class OrderServiceImpl implements OrderService {
             orderItemService.createOrderItem(cartItem, order);
             cartService.removeCartItem(cartItem.getId());
         });
+    }
+
+    private Order findById(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new InvalidMethodArgumentsException(
+                        String.format("Order with id: %d does not exist", id)));
+    }
+
+    public Order updateOrderStatus(Long id, Principal principal) {
+        Order order = findById(id);
+        OrderStatus previousStatus = order.getStatus();
+        if (previousStatus.equals(FINAL_ORDER_STATUS)) {
+            throw new ChangeFinalOrderStatusException("Order has final status. Sorry, you cannot go back in time.");
+        }
+        OrderStatus newStatus = OrderStatus.getNext(previousStatus);
+        order.setStatus(newStatus);
+        return orderRepository.save(order);
     }
 
 }
