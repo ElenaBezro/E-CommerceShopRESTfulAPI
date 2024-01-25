@@ -6,6 +6,7 @@ import com.bezro.shopRESTfulAPI.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,5 +60,17 @@ public class OrderController {
     })
     public Order updateOrderStatus(@PathVariable Long id, Principal principal) {
         return orderService.updateOrderStatus(id, principal);
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all user orders", description = "Get all user orders", tags = {"GetAllUserOrders"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Order.class)))),
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
+    })
+    public List<Order> getAllOrders(Principal principal) {
+        return orderService.getAllOrders(principal);
     }
 }

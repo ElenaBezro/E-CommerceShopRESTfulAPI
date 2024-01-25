@@ -6,6 +6,7 @@ import com.bezro.shopRESTfulAPI.entities.OrderStatus;
 import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.exceptions.ChangeFinalOrderStatusException;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
+import com.bezro.shopRESTfulAPI.exceptions.NoContentException;
 import com.bezro.shopRESTfulAPI.repositories.OrderRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
 import com.bezro.shopRESTfulAPI.services.OrderItemService;
@@ -47,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     private void convertCartItemsIntoOrderItems(Long userId, Order order) {
         List<CartItem> cartItemList = cartService.getAllCartItems(userId);
+        //TODO: throw exception No content if cartItemList is empty
         cartItemList.forEach(cartItem -> {
             orderItemService.createOrderItem(cartItem, order);
             cartService.removeCartItem(cartItem.getId());
@@ -60,6 +62,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public Order updateOrderStatus(Long id, Principal principal) {
+        //TODO: check that principal has ADMIN role
         Order order = findById(id);
         OrderStatus previousStatus = order.getStatus();
         if (previousStatus.equals(FINAL_ORDER_STATUS)) {
@@ -70,4 +73,15 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    public List<Order> getAllOrders(Principal principal) {
+        User user = (User) userService.findByUsername(principal.getName());
+        Long userId = user.getId();
+
+        List<Order> orders = orderRepository.findAllByUser_Id(userId);
+        if (orders.isEmpty()) {
+            throw new NoContentException("No Content");
+        }
+
+        return orders;
+    }
 }
