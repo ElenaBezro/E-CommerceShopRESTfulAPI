@@ -1,10 +1,15 @@
 package com.bezro.shopRESTfulAPI.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Data
+//@Data
+@Getter
+@Setter
 @Table(name = "order_items")
 public class OrderItem {
     @EmbeddedId
@@ -16,11 +21,15 @@ public class OrderItem {
     @Column(nullable = false)
     private double price;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", insertable = false, updatable = false, nullable = false, referencedColumnName = "id")
+    @JsonIgnore
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "order_id", insertable = false, updatable = false, nullable = false)
     private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", insertable = false, updatable = false, nullable = false, referencedColumnName = "id")
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @JoinColumn(name = "product_id", insertable = false, updatable = false, nullable = false)
     private Product product;
 }
