@@ -1,10 +1,7 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
-import com.bezro.shopRESTfulAPI.dtos.TotalPriceResponse;
-import com.bezro.shopRESTfulAPI.entities.CartItem;
-import com.bezro.shopRESTfulAPI.entities.Order;
-import com.bezro.shopRESTfulAPI.entities.OrderStatus;
-import com.bezro.shopRESTfulAPI.entities.User;
+import com.bezro.shopRESTfulAPI.dtos.OrderResponse;
+import com.bezro.shopRESTfulAPI.entities.*;
 import com.bezro.shopRESTfulAPI.exceptions.ChangeFinalOrderStatusException;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.exceptions.NoContentException;
@@ -74,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
-    public List<Order> getAllOrders(Principal principal) {
+    public List<OrderResponse> getAllOrders(Principal principal) {
         //TODO: refactor: create userService.getUserId(principal)
         User user = (User) userService.findByUsername(principal.getName());
         Long userId = user.getId();
@@ -84,14 +81,48 @@ public class OrderServiceImpl implements OrderService {
             throw new NoContentException("No Content");
         }
 
-        return orders;
+        return orders.stream().map(order -> {
+            OrderResponse orderResponse = new OrderResponse();
+            orderResponse.setId(order.getId());
+            orderResponse.setUserId(userId);
+            orderResponse.setCreatedAt(order.getCreatedAt());
+            orderResponse.setStatus(order.getStatus());
+            List<OrderItem> orderItems = order.getOrderItems();
+            orderResponse.setOrderItems(orderItems);
+            double totalPrice = orderItems.stream()
+                    .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
+                    .sum();
+            orderResponse.setTotalPrice(totalPrice);
+            return orderResponse;
+        }).toList();
     }
 
-    public TotalPriceResponse getTotalOrderPrice(Long orderId, Principal principal) {
-        //TODO: throw exception with 400, if order with orderId does not exist. Now I got 204 No content. Is this ok?
-        double totalPrice = orderItemService.getAllOrderItems(orderId, principal).stream()
-                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
-                .sum();
-        return new TotalPriceResponse(totalPrice);
-    }
+//    public List<Order> getAllOrders(Principal principal) {
+//        //TODO: refactor: create userService.getUserId(principal)
+//        User user = (User) userService.findByUsername(principal.getName());
+//        Long userId = user.getId();
+//
+//        List<Order> orders = orderRepository.findAllByUser_Id(userId);
+//        if (orders.isEmpty()) {
+//            throw new NoContentException("No Content");
+//        }
+//
+//        return orders;
+//    }
+
+
+//    public TotalPriceResponse getTotalOrderPrice(Long orderId) {
+//        //TODO: throw exception with 400, if order with orderId does not exist. Now I got 204 No content. Is this ok?
+//        double totalPrice = orderItemService.getAllOrderItems(orderId).stream()
+//                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
+//                .sum();
+//        return new TotalPriceResponse(totalPrice);
+//    }
+//    public TotalPriceResponse getTotalOrderPrice(Long orderId, Principal principal) {
+//        //TODO: throw exception with 400, if order with orderId does not exist. Now I got 204 No content. Is this ok?
+//        double totalPrice = orderItemService.getAllOrderItems(orderId, principal).stream()
+//                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
+//                .sum();
+//        return new TotalPriceResponse(totalPrice);
+//    }
 }

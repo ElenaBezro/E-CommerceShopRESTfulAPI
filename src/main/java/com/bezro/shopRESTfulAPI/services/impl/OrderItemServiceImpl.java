@@ -32,7 +32,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItemRepository.save(orderItem);
     }
 
-    public List<OrderItem> getAllOrderItems(Long orderId, Principal principal) {
+    public List<OrderItem> getAllOrderItems(Long orderId) {
         List<OrderItem> orderItems = orderItemRepository.findAllByOrder_Id(orderId);
         if (orderItems.isEmpty()) {
             throw new NoContentException("No Content");
@@ -40,4 +40,12 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         return orderItems;
     }
+//    public List<OrderItem> getAllOrderItems(Long orderId, Principal principal) {
+//        List<OrderItem> orderItems = orderItemRepository.findAllByOrder_Id(orderId);
+//        if (orderItems.isEmpty()) {
+//            throw new NoContentException("No Content");
+//        }
+//
+//        return orderItems;
+//    }
 }
