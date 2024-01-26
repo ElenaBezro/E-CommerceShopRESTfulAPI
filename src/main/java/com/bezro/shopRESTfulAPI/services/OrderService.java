@@ -1,5 +1,6 @@
 package com.bezro.shopRESTfulAPI.services;
 
+import com.bezro.shopRESTfulAPI.dtos.TotalPriceResponse;
 import com.bezro.shopRESTfulAPI.entities.Order;
 
 import java.security.Principal;
@@ -11,6 +12,8 @@ public interface OrderService {
     Order updateOrderStatus(Long id, Principal principal);
 
     List<Order> getAllOrders(Principal principal);
+
+    TotalPriceResponse getTotalOrderPrice(Long orderId, Principal principal);
 
     //TODO:
 //    Order getOrderById(Long id, Principal principal);

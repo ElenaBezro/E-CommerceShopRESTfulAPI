@@ -38,7 +38,7 @@ public class SecurityConfig {
                         .requestMatchers(SecurityConstants.AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers("/api/v1/cart").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/orders").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/orders").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/orders/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/products").hasRole("ADMIN")

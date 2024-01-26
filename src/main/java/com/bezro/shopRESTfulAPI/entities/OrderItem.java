@@ -1,9 +1,6 @@
 package com.bezro.shopRESTfulAPI.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -11,7 +8,7 @@ import lombok.Data;
 @Table(name = "order_items")
 public class OrderItem {
     @EmbeddedId
-    private OrderItemId orderItemId = new OrderItemId();
+    private OrderItemId orderItemId;
 
     @Column(nullable = false)
     private double quantity;
@@ -19,11 +16,11 @@ public class OrderItem {
     @Column(nullable = false)
     private double price;
 
-    public void setOrder(Order order) {
-        orderItemId.setOrder(order);
-    }
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", insertable = false, updatable = false, nullable = false, referencedColumnName = "id")
+    private Order order;
 
-    public void setProduct(Product product) {
-        orderItemId.setProduct(product);
-    }
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false, nullable = false, referencedColumnName = "id")
+    private Product product;
 }
