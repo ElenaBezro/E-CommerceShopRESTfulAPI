@@ -14,7 +14,7 @@ public interface OrderService {
 
     List<OrderResponse> getAllOrders(Principal principal);
 
-//    TotalPriceResponse getTotalOrderPrice(Long orderId, Principal principal);
+    TotalPriceResponse getTotalOrderPrice(Long orderId);
 
     //TODO:
 //    Order getOrderById(Long id, Principal principal);

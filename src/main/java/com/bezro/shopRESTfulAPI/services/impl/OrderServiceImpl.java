@@ -1,6 +1,7 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.OrderResponse;
+import com.bezro.shopRESTfulAPI.dtos.TotalPriceResponse;
 import com.bezro.shopRESTfulAPI.entities.*;
 import com.bezro.shopRESTfulAPI.exceptions.ChangeFinalOrderStatusException;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
@@ -97,32 +98,11 @@ public class OrderServiceImpl implements OrderService {
         }).toList();
     }
 
-//    public List<Order> getAllOrders(Principal principal) {
-//        //TODO: refactor: create userService.getUserId(principal)
-//        User user = (User) userService.findByUsername(principal.getName());
-//        Long userId = user.getId();
-//
-//        List<Order> orders = orderRepository.findAllByUser_Id(userId);
-//        if (orders.isEmpty()) {
-//            throw new NoContentException("No Content");
-//        }
-//
-//        return orders;
-//    }
-
-
-//    public TotalPriceResponse getTotalOrderPrice(Long orderId) {
-//        //TODO: throw exception with 400, if order with orderId does not exist. Now I got 204 No content. Is this ok?
-//        double totalPrice = orderItemService.getAllOrderItems(orderId).stream()
-//                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
-//                .sum();
-//        return new TotalPriceResponse(totalPrice);
-//    }
-//    public TotalPriceResponse getTotalOrderPrice(Long orderId, Principal principal) {
-//        //TODO: throw exception with 400, if order with orderId does not exist. Now I got 204 No content. Is this ok?
-//        double totalPrice = orderItemService.getAllOrderItems(orderId, principal).stream()
-//                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
-//                .sum();
-//        return new TotalPriceResponse(totalPrice);
-//    }
+    public TotalPriceResponse getTotalOrderPrice(Long orderId) {
+        //TODO: throw exception with 400, if order with orderId does not exist. Now I got 204 No content. Is this ok?
+        double totalPrice = orderItemService.getAllOrderItems(orderId).stream()
+                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
+                .sum();
+        return new TotalPriceResponse(totalPrice);
+    }
 }

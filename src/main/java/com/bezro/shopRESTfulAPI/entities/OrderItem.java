@@ -2,18 +2,15 @@ package com.bezro.shopRESTfulAPI.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 @Entity
-//@Data
-@Getter
-@Setter
+@Data
 @Table(name = "order_items")
 public class OrderItem {
-    @EmbeddedId
-    private OrderItemId orderItemId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private double quantity;
@@ -22,14 +19,11 @@ public class OrderItem {
     private double price;
 
     @JsonIgnore
-    @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", insertable = false, updatable = false, nullable = false)
     private Order order;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", insertable = false, updatable = false, nullable = false)
     private Product product;
 }

@@ -75,18 +75,18 @@ public class OrderController {
         return orderService.getAllOrders(principal);
     }
 
-//    @GetMapping("/{orderId}/total-price")
-//    @Operation(summary = "Get total order price", description = "Get total order price", tags = {"GetTotalOrderPrice"})
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "Successful operation",
-//                    content = @Content(schema = @Schema(implementation = TotalPriceResponse.class))),
-//            @ApiResponse(responseCode = "204", description = "No content. The user has no orders",
-//                    content = @Content(schema = @Schema(implementation = ApiException.class))),
-//            @ApiResponse(responseCode = "401", description = "User should be authenticated",
-//                    content = @Content(schema = @Schema(implementation = ApiException.class)))
-//    })
-//    public TotalPriceResponse getTotalOrderPrice(
-//            @PathVariable Long orderId, Principal principal) {
-//        return orderService.getTotalOrderPrice(orderId, principal);
-//    }
+    @GetMapping("/{orderId}/total-price")
+    @Operation(summary = "Get total order price", description = "Get total order price", tags = {"GetTotalOrderPrice"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = TotalPriceResponse.class))),
+            @ApiResponse(responseCode = "204", description = "No content. The user has no orders",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
+    })
+    public TotalPriceResponse getTotalOrderPrice(
+            @PathVariable Long orderId) {
+        return orderService.getTotalOrderPrice(orderId);
+    }
 }
