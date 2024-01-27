@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface OrderItemService {
     void createOrderItem(CartItem cartItem, Order order);
-    List<OrderItem> getAllOrderItems(Principal principal);
+    List<OrderItem> getAllOrderItems(Long orderId, Principal principal);
 }

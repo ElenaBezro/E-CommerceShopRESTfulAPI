@@ -1,23 +1,19 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
-import com.bezro.shopRESTfulAPI.entities.CartItem;
-import com.bezro.shopRESTfulAPI.entities.Order;
-import com.bezro.shopRESTfulAPI.entities.OrderItem;
-import com.bezro.shopRESTfulAPI.entities.Product;
+import com.bezro.shopRESTfulAPI.entities.*;
+import com.bezro.shopRESTfulAPI.exceptions.NoContentException;
 import com.bezro.shopRESTfulAPI.repositories.OrderItemRepository;
 import com.bezro.shopRESTfulAPI.services.OrderItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class OrderItemServiceImpl implements OrderItemService {
     private final OrderItemRepository orderItemRepository;
-    private final UserService userService;
 
     public void createOrderItem(CartItem cartItem, Order order) {
         //TODO: return OrderItem
@@ -28,11 +24,20 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItem.setPrice(product.getPrice());
         orderItem.setQuantity(cartItem.getQuantity());
 
+        OrderItemId orderItemId = new OrderItemId();
+        orderItemId.setOrderId(order.getId());
+        orderItemId.setProductId(product.getId());
+        orderItem.setOrderItemId(orderItemId);
+
         orderItemRepository.save(orderItem);
     }
 
-    //TODO: implement getAllOrderItems
-    public List<OrderItem> getAllOrderItems(Principal principal) {
-        return new ArrayList<>();
+    public List<OrderItem> getAllOrderItems(Long orderId, Principal principal) {
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrder_Id(orderId);
+        if (orderItems.isEmpty()) {
+            throw new NoContentException("No Content");
+        }
+
+        return orderItems;
     }
 }

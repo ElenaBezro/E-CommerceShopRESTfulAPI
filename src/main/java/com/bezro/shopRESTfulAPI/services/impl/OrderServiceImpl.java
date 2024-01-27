@@ -1,5 +1,6 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
+import com.bezro.shopRESTfulAPI.dtos.TotalPriceResponse;
 import com.bezro.shopRESTfulAPI.entities.CartItem;
 import com.bezro.shopRESTfulAPI.entities.Order;
 import com.bezro.shopRESTfulAPI.entities.OrderStatus;
@@ -74,6 +75,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public List<Order> getAllOrders(Principal principal) {
+        //TODO: refactor: create userService.getUserId(principal)
         User user = (User) userService.findByUsername(principal.getName());
         Long userId = user.getId();
 
@@ -83,5 +85,13 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return orders;
+    }
+
+    public TotalPriceResponse getTotalOrderPrice(Long orderId, Principal principal) {
+        //TODO: throw exception with 400, if order with orderId does not exist. Now I got 204 No content. Is this ok?
+        double totalPrice = orderItemService.getAllOrderItems(orderId, principal).stream()
+                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
+                .sum();
+        return new TotalPriceResponse(totalPrice);
     }
 }
