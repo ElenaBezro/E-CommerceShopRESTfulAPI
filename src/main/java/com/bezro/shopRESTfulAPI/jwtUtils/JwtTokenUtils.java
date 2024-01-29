@@ -31,6 +31,7 @@ public class JwtTokenUtils {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
         claims.put("roles", rolesList);
+        //TODO: add id into claims
 
         Date issuedDate = new Date();
         Date exriredDate = new Date(issuedDate.getTime() + jwtLifetime.toMillis());
