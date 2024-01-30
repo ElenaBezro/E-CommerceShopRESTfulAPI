@@ -34,7 +34,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatus FINAL_ORDER_STATUS = OrderStatus.DELIVERED;
 
     @Transactional
-    public Order createOrder(Principal principal) {
+    public OrderResponse createOrder(Principal principal) {
         User user = (User) userService.findByUsername(principal.getName());
         List<CartItem> cartItemList = cartService.getAllCartItems(user.getId());
         if (cartItemList.isEmpty()) {
@@ -52,7 +52,9 @@ public class OrderServiceImpl implements OrderService {
         //Store order items
         convertCartItemsIntoOrderItems(cartItemList, orderStored);
 
-        return orderStored;
+        List<OrderItem> orderItems = orderItemService.getAllOrderItems(orderStored.getId());
+
+        return createOrderResponse(orderStored, orderItems);
     }
 
     @Transactional
@@ -83,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
                         String.format("Order with id: %d does not exist", id)));
     }
 
-    public Order updateOrderStatus(Long id, Principal principal) {
+    public OrderResponse updateOrderStatus(Long id, Principal principal) {
         //TODO: check that principal has ADMIN role
         Order order = findById(id);
         OrderStatus previousStatus = order.getStatus();
@@ -92,7 +94,8 @@ public class OrderServiceImpl implements OrderService {
         }
         OrderStatus newStatus = OrderStatus.getNext(previousStatus);
         order.setStatus(newStatus);
-        return orderRepository.save(order);
+        Order storedOrder =  orderRepository.save(order);
+        return createOrderResponse(storedOrder, null);
     }
 
     public List<OrderResponse> getAllOrders(Principal principal) {
@@ -116,6 +119,24 @@ public class OrderServiceImpl implements OrderService {
             orderResponse.setTotalPrice(totalPrice);
             return orderResponse;
         }).toList();
+    }
+
+    private OrderResponse createOrderResponse(Order order, List<OrderItem> orderItems) {
+        OrderResponse orderResponse = new OrderResponse();
+        orderResponse.setId(order.getId());
+        orderResponse.setUserId(order.getUser().getId());
+        orderResponse.setCreatedAt(order.getCreatedAt());
+        orderResponse.setStatus(order.getStatus());
+        List<OrderItem> orderItemsToStore = orderItems == null ? order.getOrderItems() : orderItems;
+        orderResponse.setOrderItems(orderItemsToStore);
+        orderResponse.setTotalPrice(calculateTotalPrice(orderItemsToStore));
+        return orderResponse;
+    }
+
+    private double calculateTotalPrice(List<OrderItem> orderItems) {
+        return orderItems.stream()
+                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
+                .sum();
     }
 
     public TotalPriceResponse getTotalOrderPrice(Long orderId) {
