@@ -16,4 +16,5 @@ public interface ProductService {
 
     Map<String, Object> getProductsPagination(int pageNumber, int pageSize, String sort);
 
+    void decreaseProductStock(Long productId, double decrementAmount);
 }

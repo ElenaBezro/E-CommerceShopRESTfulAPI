@@ -6,16 +6,19 @@ import com.bezro.shopRESTfulAPI.entities.*;
 import com.bezro.shopRESTfulAPI.exceptions.ChangeFinalOrderStatusException;
 import com.bezro.shopRESTfulAPI.exceptions.EmptyCartException;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
+import com.bezro.shopRESTfulAPI.exceptions.NotEnoughProductStockException;
 import com.bezro.shopRESTfulAPI.repositories.OrderRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
 import com.bezro.shopRESTfulAPI.services.OrderItemService;
 import com.bezro.shopRESTfulAPI.services.OrderService;
+import com.bezro.shopRESTfulAPI.services.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,6 +28,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemService orderItemService;
     private final UserService userService;
     private final CartService cartService;
+    private final ProductService productService;
+
     private final OrderStatus INITIAL_ORDER_STATUS = OrderStatus.PROCESSING;
     private final OrderStatus FINAL_ORDER_STATUS = OrderStatus.DELIVERED;
 
@@ -36,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
             throw new EmptyCartException("Cannot create order with an empty cart");
         }
 
+        validateProductStockQuantity(cartItemList);
         //Store order
         Order order = new Order();
         order.setUser(user);
@@ -54,7 +60,21 @@ public class OrderServiceImpl implements OrderService {
         cartItemList.forEach(cartItem -> {
             orderItemService.createOrderItem(cartItem, order);
             cartService.removeCartItem(cartItem.getId());
+            productService.decreaseProductStock(cartItem.getProduct().getId(), cartItem.getQuantity());
         });
+    }
+
+    private void validateProductStockQuantity(List<CartItem> cartItemList) {
+        List<String> errors = new ArrayList<>();
+        cartItemList.forEach(cartItem -> {
+            double productStock = cartItem.getProduct().getQuantity();
+            if (productStock < cartItem.getQuantity()) {
+                errors.add("Not enough product with id: " + cartItem.getProduct().getId());
+            }
+        });
+        if (!errors.isEmpty()) {
+            throw new NotEnoughProductStockException(errors);
+        }
     }
 
     private Order findById(Long id) {

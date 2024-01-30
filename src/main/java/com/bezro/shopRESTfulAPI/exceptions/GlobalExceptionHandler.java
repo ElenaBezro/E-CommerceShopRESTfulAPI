@@ -48,6 +48,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiRequestException, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({NotEnoughProductStockException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ExceptionResponse> handleNotEnoughProductStockException(NotEnoughProductStockException exception) {
+        ExceptionResponse apiRequestException = new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), exception.getErrors());
+        return new ResponseEntity<>(apiRequestException, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler({NoContentException.class})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<ApiException> handleNoContentException(NoContentException exception) {
