@@ -17,7 +17,8 @@ public class GlobalExceptionHandler {
             UserAlreadyExistsException.class,
             UserWithEmailAlreadyExistsException.class,
             InvalidMethodArgumentsException.class,
-            ChangeFinalOrderStatusException.class})
+            ChangeFinalOrderStatusException.class,
+            EmptyCartException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiException> handlePasswordMismatchException(RuntimeException exception) {
         ApiException apiException = new ApiException(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
@@ -40,10 +41,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiRequestException> handleNotValidException(MethodArgumentNotValidException exception, HttpServletRequest request) {
+    public ResponseEntity<ExceptionResponse> handleNotValidException(MethodArgumentNotValidException exception, HttpServletRequest request) {
         List<String> errors = new ArrayList<>();
         exception.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
-        ApiRequestException apiRequestException = new ApiRequestException(HttpStatus.BAD_REQUEST.value(), errors);
+        ExceptionResponse apiRequestException = new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), errors);
         return new ResponseEntity<>(apiRequestException, HttpStatus.BAD_REQUEST);
     }
 

@@ -6,7 +6,7 @@ import com.bezro.shopRESTfulAPI.dtos.LoginUserDto;
 import com.bezro.shopRESTfulAPI.dtos.RegistrationUserDto;
 import com.bezro.shopRESTfulAPI.dtos.UserDto;
 import com.bezro.shopRESTfulAPI.exceptions.ApiException;
-import com.bezro.shopRESTfulAPI.exceptions.ApiRequestException;
+import com.bezro.shopRESTfulAPI.exceptions.ExceptionResponse;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidLoginCredentialsException;
 import com.bezro.shopRESTfulAPI.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,7 +63,7 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "User with e-mail [e-mail] already exists.",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.REGISTER_BAD_REQUEST_MESSAGE,
-                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
     })
     public UserDto registerUser(@Valid @RequestBody RegistrationUserDto registrationRequest) {
         return authService.createNewUser(registrationRequest);

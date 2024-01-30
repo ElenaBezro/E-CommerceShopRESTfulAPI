@@ -4,8 +4,8 @@ import com.bezro.shopRESTfulAPI.dtos.OrderResponse;
 import com.bezro.shopRESTfulAPI.dtos.TotalPriceResponse;
 import com.bezro.shopRESTfulAPI.entities.*;
 import com.bezro.shopRESTfulAPI.exceptions.ChangeFinalOrderStatusException;
+import com.bezro.shopRESTfulAPI.exceptions.EmptyCartException;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
-import com.bezro.shopRESTfulAPI.exceptions.NoContentException;
 import com.bezro.shopRESTfulAPI.repositories.OrderRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
 import com.bezro.shopRESTfulAPI.services.OrderItemService;
@@ -30,24 +30,27 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public Order createOrder(Principal principal) {
+        User user = (User) userService.findByUsername(principal.getName());
+        List<CartItem> cartItemList = cartService.getAllCartItems(user.getId());
+        if (cartItemList.isEmpty()) {
+            throw new EmptyCartException("Cannot create order with an empty cart");
+        }
+
         //Store order
         Order order = new Order();
-        User user = (User) userService.findByUsername(principal.getName());
         order.setUser(user);
         order.setCreatedAt(Instant.now());
         order.setStatus(INITIAL_ORDER_STATUS);
         Order orderStored = orderRepository.save(order);
 
         //Store order items
-        convertCartItemsIntoOrderItems(user.getId(), orderStored);
+        convertCartItemsIntoOrderItems(cartItemList, orderStored);
 
         return orderStored;
     }
 
     @Transactional
-    private void convertCartItemsIntoOrderItems(Long userId, Order order) {
-        List<CartItem> cartItemList = cartService.getAllCartItems(userId);
-        //TODO: throw exception No content if cartItemList is empty
+    private void convertCartItemsIntoOrderItems(List<CartItem> cartItemList, Order order) {
         cartItemList.forEach(cartItem -> {
             orderItemService.createOrderItem(cartItem, order);
             cartService.removeCartItem(cartItem.getId());
@@ -78,9 +81,6 @@ public class OrderServiceImpl implements OrderService {
         Long userId = user.getId();
 
         List<Order> orders = orderRepository.findAllByUser_Id(userId);
-        if (orders.isEmpty()) {
-            throw new NoContentException("No Content");
-        }
 
         return orders.stream().map(order -> {
             OrderResponse orderResponse = new OrderResponse();
