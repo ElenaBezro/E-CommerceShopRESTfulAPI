@@ -2,8 +2,8 @@ package com.bezro.shopRESTfulAPI.controllers;
 
 import com.bezro.shopRESTfulAPI.dtos.OrderResponse;
 import com.bezro.shopRESTfulAPI.dtos.TotalPriceResponse;
-import com.bezro.shopRESTfulAPI.entities.Order;
 import com.bezro.shopRESTfulAPI.exceptions.ApiException;
+import com.bezro.shopRESTfulAPI.exceptions.ExceptionResponse;
 import com.bezro.shopRESTfulAPI.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,11 +35,15 @@ public class OrderController {
     @Operation(summary = "Create an order", description = "Create an order", tags = {"CreateOrder"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = Order.class))),
+                    content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Cannot create order with an empty cart",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "Not enough product stock",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
-    public Order createOrder(Principal principal) {
+    public OrderResponse createOrder(Principal principal) {
         return orderService.createOrder(principal);
     }
 
@@ -51,7 +55,7 @@ public class OrderController {
     @Operation(summary = "Update order status", description = "Update order status", tags = {"Update order status"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = Order.class))),
+                    content = @Content(schema = @Schema(implementation = OrderResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid order id",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden. Only administrators can access this page",
@@ -59,7 +63,7 @@ public class OrderController {
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
-    public Order updateOrderStatus(@PathVariable Long id, Principal principal) {
+    public OrderResponse updateOrderStatus(@PathVariable Long id, Principal principal) {
         return orderService.updateOrderStatus(id, principal);
     }
 

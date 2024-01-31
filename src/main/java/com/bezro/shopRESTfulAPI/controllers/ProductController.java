@@ -4,7 +4,7 @@ import com.bezro.shopRESTfulAPI.constants.ResponseMessages;
 import com.bezro.shopRESTfulAPI.dtos.CreateProductDto;
 import com.bezro.shopRESTfulAPI.entities.Product;
 import com.bezro.shopRESTfulAPI.exceptions.ApiException;
-import com.bezro.shopRESTfulAPI.exceptions.ApiRequestException;
+import com.bezro.shopRESTfulAPI.exceptions.ExceptionResponse;
 import com.bezro.shopRESTfulAPI.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -41,7 +40,7 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = Product.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.ADD_PRODUCT_BAD_REQUEST_MESSAGE,
-                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden. Only administrators can access this page",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
@@ -100,9 +99,9 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = Product.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.UPDATE_PRODUCT_BAD_REQUEST_MESSAGE,
-                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid id",
-                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden. Only administrators can access this page",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
@@ -134,7 +133,7 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = Product.class))),
             @ApiResponse(responseCode = "400", description = "Invalid id",
-                    content = @Content(schema = @Schema(implementation = ApiRequestException.class))),
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden. Only administrators can access this page",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "401", description = "User should be authenticated",

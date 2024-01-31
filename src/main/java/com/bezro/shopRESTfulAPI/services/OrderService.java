@@ -8,9 +8,9 @@ import java.security.Principal;
 import java.util.List;
 
 public interface OrderService {
-    Order createOrder(Principal principal);
+    OrderResponse createOrder(Principal principal);
 
-    Order updateOrderStatus(Long id, Principal principal);
+    OrderResponse updateOrderStatus(Long id, Principal principal);
 
     List<OrderResponse> getAllOrders(Principal principal);
 
