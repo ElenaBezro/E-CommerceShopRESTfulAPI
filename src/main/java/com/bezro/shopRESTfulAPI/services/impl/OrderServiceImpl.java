@@ -130,13 +130,14 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setStatus(order.getStatus());
         List<OrderItem> orderItemsToStore = orderItems == null ? order.getOrderItems() : orderItems;
         orderResponse.setOrderItems(orderItemsToStore);
-        orderResponse.setTotalPrice(calculateTotalPrice(orderItemsToStore));
+        orderResponse.setTotalPrice(calculateOrderTotalPrice(orderItemsToStore));
         return orderResponse;
     }
 
-    public double calculateTotalPrice(List<OrderItem> orderItems) {
+    public double calculateOrderTotalPrice(List<OrderItem> orderItems) {
         return orderItems.stream()
                 .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
                 .sum();
     }
+
 }
