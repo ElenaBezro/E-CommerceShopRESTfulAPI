@@ -1,7 +1,6 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.OrderResponse;
-import com.bezro.shopRESTfulAPI.dtos.TotalPriceResponse;
 import com.bezro.shopRESTfulAPI.entities.*;
 import com.bezro.shopRESTfulAPI.exceptions.ChangeFinalOrderStatusException;
 import com.bezro.shopRESTfulAPI.exceptions.EmptyCartException;
@@ -58,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    private void convertCartItemsIntoOrderItems(List<CartItem> cartItemList, Order order) {
+    public void convertCartItemsIntoOrderItems(List<CartItem> cartItemList, Order order) {
         cartItemList.forEach(cartItem -> {
             orderItemService.createOrderItem(cartItem, order);
             cartService.removeCartItem(cartItem.getId());
@@ -66,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
         });
     }
 
-    private void validateProductStockQuantity(List<CartItem> cartItemList) {
+    public void validateProductStockQuantity(List<CartItem> cartItemList) {
         List<String> errors = new ArrayList<>();
         cartItemList.forEach(cartItem -> {
             double productStock = cartItem.getProduct().getQuantity();
@@ -87,6 +86,8 @@ public class OrderServiceImpl implements OrderService {
 
     public OrderResponse updateOrderStatus(Long id, Principal principal) {
         //TODO: check that principal has ADMIN role
+        //TODO: change method to accept newStatus value
+        //TODO: add test for this method
         Order order = findById(id);
         OrderStatus previousStatus = order.getStatus();
         if (previousStatus.equals(FINAL_ORDER_STATUS)) {
@@ -94,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
         }
         OrderStatus newStatus = OrderStatus.getNext(previousStatus);
         order.setStatus(newStatus);
-        Order storedOrder =  orderRepository.save(order);
+        Order storedOrder = orderRepository.save(order);
         return createOrderResponse(storedOrder, null);
     }
 
@@ -121,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
         }).toList();
     }
 
-    private OrderResponse createOrderResponse(Order order, List<OrderItem> orderItems) {
+    public OrderResponse createOrderResponse(Order order, List<OrderItem> orderItems) {
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setId(order.getId());
         orderResponse.setUserId(order.getUser().getId());
@@ -129,21 +130,14 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setStatus(order.getStatus());
         List<OrderItem> orderItemsToStore = orderItems == null ? order.getOrderItems() : orderItems;
         orderResponse.setOrderItems(orderItemsToStore);
-        orderResponse.setTotalPrice(calculateTotalPrice(orderItemsToStore));
+        orderResponse.setTotalPrice(calculateOrderTotalPrice(orderItemsToStore));
         return orderResponse;
     }
 
-    private double calculateTotalPrice(List<OrderItem> orderItems) {
+    public double calculateOrderTotalPrice(List<OrderItem> orderItems) {
         return orderItems.stream()
                 .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
                 .sum();
     }
 
-    public TotalPriceResponse getTotalOrderPrice(Long orderId) {
-        //TODO: throw exception with 400, if order with orderId does not exist. Now I got 204 No content. Is this ok?
-        double totalPrice = orderItemService.getAllOrderItems(orderId).stream()
-                .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
-                .sum();
-        return new TotalPriceResponse(totalPrice);
-    }
 }
