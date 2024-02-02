@@ -1,11 +1,13 @@
 
 INSERT INTO users (username, password, email) VALUES
 ('userTest', '100', 'user1@example.com'),
-('adminTest', '100', 'user2@example.com');
+('adminTest', '100', 'user2@example.com'),
+('userTestWithEmptyCart', '100', 'user3@example.com');
 
 INSERT INTO users_roles (user_id, role_id) VALUES
 ((SELECT id FROM users WHERE username = 'userTest'), (SELECT id FROM roles WHERE name = 'ROLE_USER')),
-((SELECT id FROM users WHERE username = 'adminTest'), (SELECT id FROM roles WHERE name = 'ROLE_ADMIN'));
+((SELECT id FROM users WHERE username = 'adminTest'), (SELECT id FROM roles WHERE name = 'ROLE_ADMIN')),
+((SELECT id FROM users WHERE username = 'userTestWithEmptyCart'), (SELECT id FROM roles WHERE name = 'ROLE_USER'));
 
 INSERT INTO products (name, description, price, quantity) VALUES
 ('Product 1', 'Description 1', 5.0, 7.0),

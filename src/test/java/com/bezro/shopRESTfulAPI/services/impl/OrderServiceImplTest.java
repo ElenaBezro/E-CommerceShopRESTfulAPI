@@ -140,7 +140,6 @@ class OrderServiceImplTest {
     @Test
     void shouldReturnOrderResponse_whenCreateOrder() {
         //Arrange
-        Principal mockPrincipal = mock(Principal.class);
         UserDetails mockUserDetails = mock(User.class);
 
         long mockTimestampMillis = Instant.parse("2024-01-25T12:00:00Z").toEpochMilli();
@@ -157,7 +156,6 @@ class OrderServiceImplTest {
         OrderResponse expectedOrderResponse = getMockOrderResponse(mockInstant, mockOrderItems);
 
         when(((User) mockUserDetails).getId()).thenReturn(1L);
-        when(mockPrincipal.getName()).thenReturn("User");
         when(userService.findByUsername("User")).thenReturn(mockUserDetails);
         when(cartService.getAllCartItems(1L)).thenReturn(mockCartItems);
         when(orderRepository.save(any())).thenReturn(mockOrder);
@@ -167,7 +165,7 @@ class OrderServiceImplTest {
         doNothing().when(productService).decreaseProductStock(200L, 7);
 
         //Act
-        OrderResponse response = orderService.createOrder(mockPrincipal);
+        OrderResponse response = orderService.createOrder("User");
 
         //Assert
         assertOrderResponse(response, expectedOrderResponse);
@@ -182,18 +180,17 @@ class OrderServiceImplTest {
     @Test
     void shouldThrowEmptyCartException_whenCartIsEmpty() {
         // Arrange
-        Principal mockPrincipal = mock(Principal.class);
+//        Principal mockPrincipal = mock(Principal.class);
         UserDetails mockUserDetails = mock(User.class);
 
         when(((User) mockUserDetails).getId()).thenReturn(1L);
-        when(mockPrincipal.getName()).thenReturn("User");
         when(userService.findByUsername(eq("User"))).thenReturn(mockUserDetails);
         when(cartService.getAllCartItems(1L)).thenReturn(new ArrayList<>());
 
         // Act
         // Assert
         EmptyCartException exception = assertThrows(EmptyCartException.class,
-                () -> orderService.createOrder(mockPrincipal),
+                () -> orderService.createOrder("User"),
                 "When the user does not have any items in the cart, then throw EmptyCartException.");
         assertEquals(exception.getMessage(), "Cannot create order with an empty cart", "Should have the same exception message");
         verify(cartService, times(1)).getAllCartItems(1L);
@@ -252,7 +249,6 @@ class OrderServiceImplTest {
     @Test
     void shouldReturnOrdersResponse_whenGetAllOrders() {
         //Arrange
-        Principal mockPrincipal = mock(Principal.class);
         UserDetails mockUserDetails = mock(User.class);
 
         long mockTimestampMillis = Instant.parse("2024-01-25T12:00:00Z").toEpochMilli();
@@ -264,12 +260,11 @@ class OrderServiceImplTest {
         List<Order> mockOrders = getMockOrders(mockUserDetails, mockInstant, mockOrderItems);
 
         when(((User) mockUserDetails).getId()).thenReturn(1L);
-        when(mockPrincipal.getName()).thenReturn("User");
         when(userService.findByUsername("User")).thenReturn(mockUserDetails);
         when(orderRepository.findAllByUser_Id(1L)).thenReturn(mockOrders);
 
         //Act
-        List<OrderResponse> response = orderService.getAllOrders(mockPrincipal);
+        List<OrderResponse> response = orderService.getAllOrders("User");
 
         //Assert
         assertEquals(1, response.size(), "Should have the same size");
@@ -299,16 +294,14 @@ class OrderServiceImplTest {
     @Test
     void shouldReturnEmptyList_whenUserDoesNotHaveOrders() {
         // Arrange
-        Principal mockPrincipal = mock(Principal.class);
         UserDetails mockUserDetails = mock(User.class);
 
         when(((User) mockUserDetails).getId()).thenReturn(1L);
-        when(mockPrincipal.getName()).thenReturn("User");
         when(userService.findByUsername(eq("User"))).thenReturn(mockUserDetails);
         when(orderRepository.findAllByUser_Id(eq(1L))).thenReturn(new ArrayList<>());
 
         // Act
-        List<OrderResponse> response = orderService.getAllOrders(mockPrincipal);
+        List<OrderResponse> response = orderService.getAllOrders("User");
 
         //Assert
         assertTrue(response.isEmpty(), "Should return an empty list");
@@ -317,7 +310,6 @@ class OrderServiceImplTest {
     @Test
     void shouldReturnOrderResponseObject_whenOrderItemsPassedAsParameter() {
         // Arrange
-        Principal mockPrincipal = mock(Principal.class);
         UserDetails mockUserDetails = mock(User.class);
 
         long mockTimestampMillis = Instant.parse("2024-01-25T12:00:00Z").toEpochMilli();
@@ -342,7 +334,6 @@ class OrderServiceImplTest {
     @Test
     void shouldReturnOrderResponseObject_whenOrderItemsInParametersEqualsNull() {
         // Arrange
-        Principal mockPrincipal = mock(Principal.class);
         UserDetails mockUserDetails = mock(User.class);
 
         long mockTimestampMillis = Instant.parse("2024-01-25T12:00:00Z").toEpochMilli();
