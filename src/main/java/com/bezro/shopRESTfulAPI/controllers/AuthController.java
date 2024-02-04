@@ -10,8 +10,6 @@ import com.bezro.shopRESTfulAPI.exceptions.ExceptionResponse;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidLoginCredentialsException;
 import com.bezro.shopRESTfulAPI.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,9 +20,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,30 +66,5 @@ public class AuthController {
     })
     public UserDto registerUser(@Valid @RequestBody RegistrationUserDto registrationRequest) {
         return authService.createNewUser(registrationRequest);
-    }
-
-    //TODO: delete next methods. Only for test purposes
-    @GetMapping("/unsecured")
-    public String unsecuredData() {
-        return "Unsecured data";
-    }
-
-    @Parameter(in = ParameterIn.HEADER,
-            description = "Authorization token",
-            name = "JWT",
-            content = @Content(schema = @Schema(type = "string")))
-    @GetMapping("/secured")
-    public String securedData() {
-        return "Secured data";
-    }
-
-    @GetMapping("/admin")
-    public String adminData() {
-        return "Admin data";
-    }
-
-    @GetMapping("/info")
-    public String userData(Principal principal) {
-        return principal.getName();
     }
 }
