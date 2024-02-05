@@ -1,8 +1,10 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.OrderResponse;
+import com.bezro.shopRESTfulAPI.dtos.UpdateOrderDto;
 import com.bezro.shopRESTfulAPI.entities.*;
 import com.bezro.shopRESTfulAPI.exceptions.EmptyCartException;
+import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.exceptions.NotEnoughProductStockException;
 import com.bezro.shopRESTfulAPI.repositories.OrderRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
@@ -16,10 +18,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -180,7 +182,6 @@ class OrderServiceImplTest {
     @Test
     void shouldThrowEmptyCartException_whenCartIsEmpty() {
         // Arrange
-//        Principal mockPrincipal = mock(Principal.class);
         UserDetails mockUserDetails = mock(User.class);
 
         when(((User) mockUserDetails).getId()).thenReturn(1L);
@@ -194,6 +195,56 @@ class OrderServiceImplTest {
                 "When the user does not have any items in the cart, then throw EmptyCartException.");
         assertEquals(exception.getMessage(), "Cannot create order with an empty cart", "Should have the same exception message");
         verify(cartService, times(1)).getAllCartItems(1L);
+    }
+
+    @Test
+    void shouldReturnOrderResponse_whenUpdateOrderStatus() {
+        //Arrange
+        UserDetails mockUserDetails = mock(User.class);
+
+        long mockTimestampMillis = Instant.parse("2024-01-25T12:00:00Z").toEpochMilli();
+        Instant mockInstant = Instant.ofEpochMilli(mockTimestampMillis);
+
+        CartItem mockCartItem = getMockCartItem(20L, 200L, mockUserDetails);
+        List<CartItem> mockCartItems = List.of(mockCartItem);
+
+        OrderItem mockOrderItem = getMockOrderItem(10L, mockCartItem.getProduct());
+        List<OrderItem> mockOrderItems = List.of(mockOrderItem);
+
+        Order mockOrder = getMockOrder(mockUserDetails, mockInstant, mockOrderItems);
+        mockOrder.setStatus(OrderStatus.PROCESSING);
+
+        OrderResponse expectedOrderResponse = getMockOrderResponse(mockInstant, mockOrderItems);
+        expectedOrderResponse.setStatus(OrderStatus.SHIPPED);
+
+        UpdateOrderDto updateOrderDto = new UpdateOrderDto();
+        updateOrderDto.setStatus("SHIPPED");
+
+        when(((User) mockUserDetails).getId()).thenReturn(1L);
+        when(orderRepository.findById(30L)).thenReturn(Optional.of(mockOrder));
+        when(orderRepository.save(any())).thenReturn(mockOrder);
+
+        //Act
+        OrderResponse response = orderService.updateOrderStatus(updateOrderDto, 30L);
+
+        //Assert
+        assertOrderResponse(response, expectedOrderResponse);
+    }
+
+    @Test
+    void shouldThrowBadRequestException_whenUpdateOrderStatusWithInvalidOrderId() {
+        //Arrange
+        UpdateOrderDto updateOrderDto = new UpdateOrderDto();
+        updateOrderDto.setStatus("SHIPPED");
+
+        when(orderRepository.findById(any())).thenThrow(
+                new InvalidMethodArgumentsException("Order with id: 99 does not exist"));
+
+        //Act & Assert
+        InvalidMethodArgumentsException exception = assertThrows(InvalidMethodArgumentsException.class,
+                () -> orderService.updateOrderStatus(updateOrderDto, 99L),
+                "When order with id does not exist, then throw InvalidMethodArgumentsException.");
+        assertEquals("Order with id: 99 does not exist", exception.getMessage(), "Should have the same error message");
     }
 
     @Test

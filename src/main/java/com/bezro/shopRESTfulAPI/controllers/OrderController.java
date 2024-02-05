@@ -1,6 +1,8 @@
 package com.bezro.shopRESTfulAPI.controllers;
 
+import com.bezro.shopRESTfulAPI.constants.ResponseMessages;
 import com.bezro.shopRESTfulAPI.dtos.OrderResponse;
+import com.bezro.shopRESTfulAPI.dtos.UpdateOrderDto;
 import com.bezro.shopRESTfulAPI.exceptions.ApiException;
 import com.bezro.shopRESTfulAPI.exceptions.ExceptionResponse;
 import com.bezro.shopRESTfulAPI.services.OrderService;
@@ -9,10 +11,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +51,7 @@ public class OrderController {
         return orderService.createOrder(principal.getName());
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{orderId}")
     @Parameter(in = ParameterIn.HEADER,
             description = "Authorization token",
             name = "JWT",
@@ -56,6 +60,8 @@ public class OrderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = ResponseMessages.UPDATE_ORDER_BAD_REQUEST_MESSAGE,
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid order id",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden. Only administrators can access this page",
@@ -63,8 +69,20 @@ public class OrderController {
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
-    public OrderResponse updateOrderStatus(@PathVariable Long id, Principal principal) {
-        return orderService.updateOrderStatus(id, principal.getName());
+    public OrderResponse updateOrderStatus(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Order details",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UpdateOrderDto.class),
+                            examples = @ExampleObject(
+                                    value = "{\"status\":\"SHIPPED\"}"
+                            )
+                    )
+            )
+            @Valid @RequestBody UpdateOrderDto updateOrderDto, @PathVariable Long orderId) {
+        return orderService.updateOrderStatus(updateOrderDto, orderId);
     }
 
     @GetMapping
