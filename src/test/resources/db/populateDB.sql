@@ -11,7 +11,8 @@ INSERT INTO users_roles (user_id, role_id) VALUES
 
 INSERT INTO products (name, description, price, quantity) VALUES
 ('Product 1', 'Description 1', 5.0, 7.0),
-('Product 2', 'Description 2', 5.0, 7.0);
+('Product 2', 'Description 2', 5.0, 7.0),
+('A-Product 3', 'Description 3', 55.0, 77.0);
 
 INSERT INTO cart_items (product_id, quantity, user_id) VALUES
 ((SELECT id FROM products WHERE name = 'Product 1'), 7.0, (SELECT id FROM users WHERE username = 'adminTest')),
