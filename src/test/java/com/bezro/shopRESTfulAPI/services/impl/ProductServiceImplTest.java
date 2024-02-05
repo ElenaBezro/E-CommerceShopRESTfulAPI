@@ -34,10 +34,10 @@ class ProductServiceImplTest {
 
     private CreateProductDto createProductDto() {
         CreateProductDto createProductDto = new CreateProductDto();
-        createProductDto.setName("ProductName");
-        createProductDto.setDescription("ProductDescription");
-        createProductDto.setPrice(2.0d);
-        createProductDto.setQuantity(10.5d);
+        createProductDto.setName("New ProductName");
+        createProductDto.setDescription("New ProductDescription");
+        createProductDto.setPrice(4.0d);
+        createProductDto.setQuantity(20.5d);
 
         return createProductDto;
     }
@@ -83,19 +83,31 @@ class ProductServiceImplTest {
     }
 
     @Test
-        //TODO: change updateProduct in Service to return a Product?
     void shouldReturnVoid_whenUpdateProduct() {
         // Arrange
         CreateProductDto createProductDto = createProductDto();
         Product productMock = productMock();
 
+        Product expectedProduct = new Product();
+        expectedProduct.setId(productMock.getId());
+        expectedProduct.setName(createProductDto.getName());
+        expectedProduct.setDescription(createProductDto.getDescription());
+        expectedProduct.setPrice(createProductDto.getPrice());
+        expectedProduct.setQuantity(createProductDto.getQuantity());
+
         when(productRepository.findById(eq(1L))).thenReturn(Optional.of(productMock));
+        when(productRepository.save(any())).thenReturn(expectedProduct);
 
         // Act
-        productService.updateProduct(1L, createProductDto);
+        Product product = productService.updateProduct(1L, createProductDto);
 
         // Assert
         verify(productRepository, times(1)).save(any(Product.class));
+        assertEquals(expectedProduct.getId(), product.getId(), "Ids should match");
+        assertEquals(expectedProduct.getName(), product.getName(), "Names should match");
+        assertEquals(expectedProduct.getDescription(), product.getDescription(), "Descriptions should match");
+        assertEquals(expectedProduct.getPrice(), product.getPrice(), "Prices should match");
+        assertEquals(expectedProduct.getQuantity(), product.getQuantity(), "Quantity should match");
     }
 
     @Test

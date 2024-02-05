@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -28,7 +27,6 @@ import java.util.Map;
 @Tag(description = "Endpoints for selecting, adding, updating and deleting products", name = "Product")
 public class ProductController {
     private final ProductService productService;
-    private final AuthenticationManager authenticationManager;
 
     @PostMapping
     @Parameter(in = ParameterIn.HEADER,
@@ -63,10 +61,11 @@ public class ProductController {
     }
 
     @GetMapping(params = {"pageNumber", "pageSize"})
-    @Operation(summary = "Get all products", description = "Any unauthorized user can get a list of all products", tags = {"GetAllProducts"})
+    @Operation(summary = "Get all products", description = "Any unauthenticated user can get a list of all products", tags = {"GetAllProducts"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(ref = "#/components/schemas/CustomResponse")))
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/CustomResponse"))),
+            @ApiResponse(responseCode = "204", description = "No content")
     })
     public Map<String, Object> getProducts(
             @Parameter(description = "Page number", example = "1", required = true) @RequestParam(defaultValue = "0") int pageNumber,
@@ -76,10 +75,11 @@ public class ProductController {
     }
 
     @GetMapping(params = {"pageNumber", "pageSize", "sort"})
-    @Operation(summary = "Get all products with sorting", description = "Any unauthorized user can get a list of all products", tags = {"GetAllProductsSorted"})
+    @Operation(summary = "Get all products with sorting", description = "Any unauthenticated user can get a list of all products", tags = {"GetAllProductsSorted"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(ref = "#/components/schemas/CustomResponse")))
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/CustomResponse"))),
+            @ApiResponse(responseCode = "204", description = "No content")
     })
     public Map<String, Object> getProducts(
             @Parameter(description = "Page number", example = "1", required = true) @RequestParam(defaultValue = "0") int pageNumber,
@@ -107,7 +107,7 @@ public class ProductController {
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
-    public void updateProduct(
+    public Product updateProduct(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Product details",
                     required = true,
@@ -120,7 +120,7 @@ public class ProductController {
                     )
             )
             @Valid @RequestBody CreateProductDto productDto, @PathVariable Long id) {
-        productService.updateProduct(id, productDto);
+        return productService.updateProduct(id, productDto);
     }
 
     @DeleteMapping("/{id}")

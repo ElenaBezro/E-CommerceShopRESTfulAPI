@@ -10,7 +10,7 @@ public interface ProductService {
 
     Product findById(Long id);
 
-    void updateProduct(Long id, CreateProductDto productDto);
+    Product updateProduct(Long id, CreateProductDto productDto);
 
     void deleteProduct(Long id);
 

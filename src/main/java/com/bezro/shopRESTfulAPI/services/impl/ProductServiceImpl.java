@@ -38,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
                         String.format("Product with id: %d does not exist", id)));
     }
 
-    public void updateProduct(Long id, CreateProductDto productDto) {
+    public Product updateProduct(Long id, CreateProductDto productDto) {
         Product product = findById(id);
         //TODO: use ModelMapper to map data from DTO to the entity
         //    modelMapper.map(productDto, product) ?
@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
         product.setQuantity(productDto.getQuantity());
-        productRepository.save(product);
+        return productRepository.save(product);
     }
 
     public void deleteProduct(Long id) {
@@ -64,7 +64,6 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> productPage = productRepository.findAll(pageable);
 
         if (!productPage.hasContent()) {
-            //TODO: response is not as expected (ApiException.class). I got an empty body. Why?
             throw new NoContentException("No Content");
         }
 
