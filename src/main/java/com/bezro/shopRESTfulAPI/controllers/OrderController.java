@@ -43,7 +43,8 @@ public class OrderController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public OrderResponse createOrder(Principal principal) {
-        return orderService.createOrder(principal);
+
+        return orderService.createOrder(principal.getName());
     }
 
     @PutMapping("/{id}")
@@ -63,7 +64,7 @@ public class OrderController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public OrderResponse updateOrderStatus(@PathVariable Long id, Principal principal) {
-        return orderService.updateOrderStatus(id, principal);
+        return orderService.updateOrderStatus(id, principal.getName());
     }
 
     @GetMapping
@@ -75,6 +76,6 @@ public class OrderController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public List<OrderResponse> getAllOrders(Principal principal) {
-        return orderService.getAllOrders(principal);
+        return orderService.getAllOrders(principal.getName());
     }
 }

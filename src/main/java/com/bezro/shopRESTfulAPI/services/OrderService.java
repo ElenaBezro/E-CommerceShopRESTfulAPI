@@ -6,11 +6,11 @@ import java.security.Principal;
 import java.util.List;
 
 public interface OrderService {
-    OrderResponse createOrder(Principal principal);
+    OrderResponse createOrder(String userName);
 
-    OrderResponse updateOrderStatus(Long id, Principal principal);
+    OrderResponse updateOrderStatus(Long id, String userName);
 
-    List<OrderResponse> getAllOrders(Principal principal);
+    List<OrderResponse> getAllOrders(String userName);
 
     //TODO:
 //    Order getOrderById(Long id, Principal principal);

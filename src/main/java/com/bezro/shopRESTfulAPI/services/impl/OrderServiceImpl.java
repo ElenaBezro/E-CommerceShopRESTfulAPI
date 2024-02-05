@@ -33,8 +33,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatus FINAL_ORDER_STATUS = OrderStatus.DELIVERED;
 
     @Transactional
-    public OrderResponse createOrder(Principal principal) {
-        User user = (User) userService.findByUsername(principal.getName());
+    public OrderResponse createOrder(String userName) {
+        User user = (User) userService.findByUsername(userName);
         List<CartItem> cartItemList = cartService.getAllCartItems(user.getId());
         if (cartItemList.isEmpty()) {
             throw new EmptyCartException("Cannot create order with an empty cart");
@@ -84,7 +84,7 @@ public class OrderServiceImpl implements OrderService {
                         String.format("Order with id: %d does not exist", id)));
     }
 
-    public OrderResponse updateOrderStatus(Long id, Principal principal) {
+    public OrderResponse updateOrderStatus(Long id, String userName) {
         //TODO: check that principal has ADMIN role
         //TODO: change method to accept newStatus value
         //TODO: add test for this method
@@ -99,9 +99,8 @@ public class OrderServiceImpl implements OrderService {
         return createOrderResponse(storedOrder, null);
     }
 
-    public List<OrderResponse> getAllOrders(Principal principal) {
-        //TODO: refactor: create userService.getUserId(principal)
-        User user = (User) userService.findByUsername(principal.getName());
+    public List<OrderResponse> getAllOrders(String userName) {
+        User user = (User) userService.findByUsername(userName);
         Long userId = user.getId();
 
         List<Order> orders = orderRepository.findAllByUser_Id(userId);
