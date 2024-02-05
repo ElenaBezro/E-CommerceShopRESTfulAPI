@@ -18,10 +18,8 @@ INSERT INTO cart_items (product_id, quantity, user_id) VALUES
 ((SELECT id FROM products WHERE name = 'Product 2'), 7.0, (SELECT id FROM users WHERE username = 'userTest'));
 
 INSERT INTO orders (user_id, created_at, status) VALUES
-((SELECT id FROM users WHERE username = 'userTest'), NOW(), 1),
-((SELECT id FROM users WHERE username = 'userTest'), NOW(), 2);
+((SELECT id FROM users WHERE username = 'userTest'), NOW(), 1);
 
 INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
-((SELECT id FROM orders WHERE status = 1), (SELECT id FROM products WHERE name = 'Product 2'), 7.0, 5.0),
-((SELECT id FROM orders WHERE status = 2), (SELECT id FROM products WHERE name = 'Product 2'), 7.0, 5.0);
+((SELECT id FROM orders WHERE status = 1), (SELECT id FROM products WHERE name = 'Product 2'), 7.0, 5.0);
 
