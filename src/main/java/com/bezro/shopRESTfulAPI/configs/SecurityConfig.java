@@ -26,15 +26,13 @@ public class SecurityConfig {
     private final UserDetailsService userService;
     private final JwtRequestFilter jwtRequestFilter;
     private final PasswordEncoder passwordEncoder;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/auth/admin").hasRole("ADMIN") //for test purposes
-                        .requestMatchers("/api/v1/auth/info").authenticated() //for test purposes
-                        .requestMatchers("/api/v1/auth/secured").authenticated() //for test purposes
                         .requestMatchers(SecurityConstants.AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers("/api/v1/cart").authenticated()
@@ -42,14 +40,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/orders").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/orders/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/products").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/products").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exp -> exp.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(daoAuthenticationProvider())
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
