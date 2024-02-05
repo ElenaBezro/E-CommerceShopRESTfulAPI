@@ -12,4 +12,13 @@ public enum OrderStatus {
             default -> previousStatus;
         };
     }
+
+    public static OrderStatus fromString(String status) {
+        for (OrderStatus orderStatus : OrderStatus.values()) {
+            if (orderStatus.name().equalsIgnoreCase(status)) {
+                return orderStatus;
+            }
+        }
+        throw new IllegalArgumentException("Invalid OrderStatus: " + status);
+    }
 }

@@ -12,7 +12,9 @@ public class ResponseMessages {
             "        \"Stock quantity must be greater than zero\",\n" +
             "        \"The name is required.\"\n" +
             "    ]";
-
+    public static final String UPDATE_ORDER_BAD_REQUEST_MESSAGE = "[\n" +
+            "        \"Invalid order status.\"\n" +
+            "    ]";
     public static final String REGISTER_BAD_REQUEST_MESSAGE = "[\n" +
             "        \"Password must be 8 characters long and combination of uppercase letters, lowercase letters, numbers, special characters.\",\n" +
             "        \"Password and Confirm Password must be matched!\",\n" +

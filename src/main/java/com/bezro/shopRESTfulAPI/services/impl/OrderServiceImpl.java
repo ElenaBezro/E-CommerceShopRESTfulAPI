@@ -1,8 +1,8 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.OrderResponse;
+import com.bezro.shopRESTfulAPI.dtos.UpdateOrderDto;
 import com.bezro.shopRESTfulAPI.entities.*;
-import com.bezro.shopRESTfulAPI.exceptions.ChangeFinalOrderStatusException;
 import com.bezro.shopRESTfulAPI.exceptions.EmptyCartException;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.exceptions.NotEnoughProductStockException;
@@ -15,7 +15,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,23 +77,17 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    private Order findById(Long id) {
+    public Order findById(Long id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new InvalidMethodArgumentsException(
                         String.format("Order with id: %d does not exist", id)));
     }
 
-    public OrderResponse updateOrderStatus(Long id, String userName) {
-        //TODO: check that principal has ADMIN role
-        //TODO: change method to accept newStatus value
-        //TODO: add test for this method
-        Order order = findById(id);
-        OrderStatus previousStatus = order.getStatus();
-        if (previousStatus.equals(FINAL_ORDER_STATUS)) {
-            throw new ChangeFinalOrderStatusException("Order has final status. Sorry, you cannot go back in time.");
-        }
-        OrderStatus newStatus = OrderStatus.getNext(previousStatus);
-        order.setStatus(newStatus);
+    public OrderResponse updateOrderStatus(UpdateOrderDto updateOrderDto, Long orderId) {
+        Order order = findById(orderId);
+        String statusString = updateOrderDto.getStatus();
+        OrderStatus orderStatus = OrderStatus.fromString(statusString);
+        order.setStatus(orderStatus);
         Order storedOrder = orderRepository.save(order);
         return createOrderResponse(storedOrder, null);
     }
