@@ -1,5 +1,6 @@
 package com.bezro.shopRESTfulAPI.services.impl;
 
+import com.bezro.shopRESTfulAPI.dtos.CartItemResponse;
 import com.bezro.shopRESTfulAPI.dtos.CreateCartItemDto;
 import com.bezro.shopRESTfulAPI.entities.CartItem;
 import com.bezro.shopRESTfulAPI.entities.Product;
@@ -9,10 +10,8 @@ import com.bezro.shopRESTfulAPI.repositories.CartRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
 import com.bezro.shopRESTfulAPI.services.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,25 +24,26 @@ public class CartServiceImpl implements CartService {
     private final ProductService productService;
     private final UserService userService;
 
-    public CartItem addCartItem(CreateCartItemDto cartItemDto, Principal principal) {
+    public CartItemResponse addCartItem(CreateCartItemDto cartItemDto, String username) {
+        //TODO: optimize requests in addCartItem and updateCartItem
         Long productId = cartItemDto.getProductId();
         Product product = productService.findById(productId);
         sufficientProductStockCheck(product, cartItemDto);
 
-        CartItem cartItem;
         Long userId = cartItemDto.getUserId();
+        userMatchPrincipalCheck(userId, username);
+        Optional<CartItem> existingCartItem = findCartItemByProductIdAndUserId(productId, userId);
 
-        if (existsByProductId(productId)) {
-            cartItem = findCartItemByProductId(productId);
-            return updateCartItemQuantity(cartItem.getId(), cartItemDto, principal);
+        if (existingCartItem.isPresent()) {
+            return updateCartItemQuantity(existingCartItem.get().getId(), cartItemDto, username);
         } else {
-            cartItem = new CartItem();
+            CartItem cartItem = new CartItem();
             cartItem.setProduct(product);
             cartItem.setUser(userService.findById(userId));
-            userMatchPrincipalCheck(userId, principal);
             cartItem.setQuantity(cartItemDto.getQuantity());
 
-            return cartRepository.save(cartItem);
+            CartItem storedCartItem = cartRepository.save(cartItem);
+            return new CartItemResponse(storedCartItem);
         }
     }
 
@@ -54,25 +54,21 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    private void userMatchPrincipalCheck(Long userId, Principal principal) {
-        boolean isUserMatchPrincipal = userService.isUserMatchPrincipal(userId, principal);
+    private void userMatchPrincipalCheck(Long userId, String username) {
+        boolean isUserMatchPrincipal = userService.isUserMatchPrincipal(userId, username);
         if (!isUserMatchPrincipal) {
             throw new InvalidMethodArgumentsException(
                     String.format("User id %d does not match logged in user id", userId));
         }
     }
 
-    public boolean existsByProductId(Long productId) {
-        return cartRepository.findByProduct_Id(productId).isPresent();
+    public Optional<CartItem> findCartItemByProductIdAndUserId(Long productId, Long userId) {
+        return cartRepository.findByProduct_IdAndUser_Id(productId, userId);
     }
 
-    public CartItem findCartItemByProductId(Long productId) {
-        return cartRepository.findByProduct_Id(productId)
-                .orElseThrow(() -> new InvalidMethodArgumentsException(String.format("Cart item with product id: %d does not exist", productId)));
-    }
-
-    public CartItem updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, Principal principal) {
+    public CartItemResponse updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, String username) {
         Long userId = cartItemDto.getUserId();
+        userMatchPrincipalCheck(userId, username);
         Long productId = cartItemDto.getProductId();
         Product product = productService.findById(productId);
         sufficientProductStockCheck(product, cartItemDto);
@@ -80,10 +76,10 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
                 new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
         cartItemValidRecordCheck(cartItem, cartItemDto);
-        userMatchPrincipalCheck(userId, principal);
         cartItem.setQuantity(cartItemDto.getQuantity());
 
-        return cartRepository.save(cartItem);
+        CartItem storedCartItem = cartRepository.save(cartItem);
+        return new CartItemResponse(storedCartItem);
     }
 
     private void cartItemValidRecordCheck(CartItem cartItem, CreateCartItemDto cartItemDto) {
@@ -101,11 +97,13 @@ public class CartServiceImpl implements CartService {
         cartRepository.delete(cartItem);
     }
 
-    public List<CartItem> getAllCartItems(Principal principal) {
-        User user = (User) userService.findByUsername(principal.getName());
+    public List<CartItemResponse> getAllCartItems(String username) {
+        User user = (User) userService.findByUsername(username);
         Long userId = user.getId();
         Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
-        return cartItemList.orElseGet(ArrayList::new);
+        return cartItemList.orElseGet(ArrayList::new)
+                .stream()
+                .map(CartItemResponse::new).toList();
     }
 
     //TODO: refactor two last methods: remove repeated code
