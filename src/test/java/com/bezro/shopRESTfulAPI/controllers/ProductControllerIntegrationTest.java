@@ -356,18 +356,10 @@ class ProductControllerIntegrationTest {
                         .characterEncoding("UTF-8")
                         .content("{}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.messages[0]", Matchers.anyOf(
-                        Matchers.is("The name is required."),
-                        Matchers.is("Price must be greater than zero"),
-                        Matchers.is("Stock quantity must be greater than zero")
-                ))).andExpect(jsonPath("$.messages[1]", Matchers.anyOf(
-                        Matchers.is("The name is required."),
-                        Matchers.is("Price must be greater than zero"),
-                        Matchers.is("Stock quantity must be greater than zero")
-                ))).andExpect(jsonPath("$.messages[2]", Matchers.anyOf(
-                        Matchers.is("The name is required."),
-                        Matchers.is("Price must be greater than zero"),
-                        Matchers.is("Stock quantity must be greater than zero")
+                .andExpect(jsonPath("$.messages", containsInAnyOrder(
+                        "The name is required.",
+                        "Price must be greater than zero",
+                        "Stock quantity must be greater than zero"
                 )));
     }
 

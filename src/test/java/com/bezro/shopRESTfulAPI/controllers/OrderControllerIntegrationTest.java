@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -238,10 +239,7 @@ class OrderControllerIntegrationTest {
                         .characterEncoding("UTF-8")
                         .content("{\"invalid\": \"INVALID\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.messages[0]", Matchers.anyOf(
-                        Matchers.is("The status is required."),
-                        Matchers.is("Invalid order status.")
-                ))).andExpect(jsonPath("$.messages[1]", Matchers.anyOf(
+                .andExpect(jsonPath("$.messages", containsInAnyOrder(
                         Matchers.is("The status is required."),
                         Matchers.is("Invalid order status.")
                 )));

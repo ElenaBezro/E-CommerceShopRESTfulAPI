@@ -1,9 +1,9 @@
 package com.bezro.shopRESTfulAPI.controllers;
 
 import com.bezro.shopRESTfulAPI.constants.ResponseMessages;
+import com.bezro.shopRESTfulAPI.dtos.CartItemResponse;
 import com.bezro.shopRESTfulAPI.dtos.CreateCartItemDto;
 import com.bezro.shopRESTfulAPI.dtos.CreateProductDto;
-import com.bezro.shopRESTfulAPI.entities.CartItem;
 import com.bezro.shopRESTfulAPI.exceptions.ApiException;
 import com.bezro.shopRESTfulAPI.exceptions.ExceptionResponse;
 import com.bezro.shopRESTfulAPI.services.CartService;
@@ -39,13 +39,21 @@ public class CartController {
     @Operation(summary = "Add a cart item", description = "Add a cart item", tags = {"AddCartItem"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = CartItem.class))),
+                    content = @Content(schema = @Schema(implementation = CartItemResponse.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.ADD_CART_ITEM_BAD_REQUEST_MESSAGE,
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+            @ApiResponse(responseCode = "400", description = "The user id does not match logged-in user's id",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid product id",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "Insufficient product stock",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "invalid combination of payload fields",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
-    public CartItem addCartItem(
+    public CartItemResponse addCartItem(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Cart item details",
                     required = true,
@@ -58,7 +66,7 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, Principal principal) {
-        return cartService.addCartItem(cartItemDto, principal);
+        return cartService.addCartItem(cartItemDto, principal.getName());
     }
 
     @PutMapping("/{id}")
@@ -69,19 +77,23 @@ public class CartController {
     @Operation(summary = "Update a cart item quantity", description = "Update a cart item quantity", tags = {"UpdateCartItemQuantity"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = CartItem.class))),
+                    content = @Content(schema = @Schema(implementation = CartItemResponse.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.ADD_CART_ITEM_BAD_REQUEST_MESSAGE,
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid cart item id",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "400", description = "Invalid product id",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid user id",
+            @ApiResponse(responseCode = "400", description = "The user id does not match logged-in user's id",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "Insufficient product stock",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "invalid combination of payload fields",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
-    public CartItem updateCartItemQuantity(
+    public CartItemResponse updateCartItemQuantity(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Cart item details",
                     required = true,
@@ -94,7 +106,7 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, @PathVariable Long id, Principal principal) {
-        return cartService.updateCartItemQuantity(id, cartItemDto, principal);
+        return cartService.updateCartItemQuantity(id, cartItemDto, principal.getName());
     }
 
     @DeleteMapping("/{id}")
@@ -118,9 +130,11 @@ public class CartController {
     @Operation(summary = "Get all cart items", description = "Get a list of all cart items", tags = {"GetAllCartItems"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CartItem.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CartItemResponse.class)))),
+            @ApiResponse(responseCode = "401", description = "User should be authenticated",
+                    content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
-    public List<CartItem> getAllCartItems(Principal principal) {
-        return cartService.getAllCartItems(principal);
+    public List<CartItemResponse> getAllCartItems(Principal principal) {
+        return cartService.getAllCartItems(principal.getName());
     }
 }
