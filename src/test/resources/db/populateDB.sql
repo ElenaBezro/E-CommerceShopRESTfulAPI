@@ -1,8 +1,8 @@
 
 INSERT INTO users (username, password, email) VALUES
-('userTest', '100', 'user1@example.com'),
-('adminTest', '100', 'user2@example.com'),
-('userTestWithEmptyCart', '100', 'user3@example.com');
+('userTest', '$2a$10$0Ktp2jrFkMsW9MJr7YO2yebRt3jzRLaGhkdXepor7GZXyBVy/MyUm', 'user1@example.com'),
+('adminTest', '$2a$10$0Ktp2jrFkMsW9MJr7YO2yebRt3jzRLaGhkdXepor7GZXyBVy/MyUm', 'user2@example.com'),
+('userTestWithEmptyCart', '$2a$10$0Ktp2jrFkMsW9MJr7YO2yebRt3jzRLaGhkdXepor7GZXyBVy/MyUm', 'user3@example.com');
 
 INSERT INTO users_roles (user_id, role_id) VALUES
 ((SELECT id FROM users WHERE username = 'userTest'), (SELECT id FROM roles WHERE name = 'ROLE_USER')),

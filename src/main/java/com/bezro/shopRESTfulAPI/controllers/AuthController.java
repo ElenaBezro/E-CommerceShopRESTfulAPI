@@ -38,9 +38,10 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = @Content(schema = @Schema(implementation = JwtResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Login or password is incorrect.",
-                    content = @Content(schema = @Schema(implementation = ApiException.class)))
-            //TODO: add @ApiResponse invalid request data responses, user not found?
+            @ApiResponse(responseCode = "400", description = "Login or password is incorrect.",
+                    content = @Content(schema = @Schema(implementation = ApiException.class))),
+            @ApiResponse(responseCode = "400", description = "The username and the password are required.",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
     })
     public JwtResponse login(@Valid @RequestBody LoginUserDto loginRequest) {
 
@@ -63,6 +64,8 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "400", description = ResponseMessages.REGISTER_BAD_REQUEST_MESSAGE,
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+            @ApiResponse(responseCode = "400", description = ResponseMessages.REGISTER_EMPTY_REQUEST_MESSAGE,
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
     })
     public UserDto registerUser(@Valid @RequestBody RegistrationUserDto registrationRequest) {
         return authService.createNewUser(registrationRequest);
