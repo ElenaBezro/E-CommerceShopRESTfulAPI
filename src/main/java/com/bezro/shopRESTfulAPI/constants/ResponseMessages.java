@@ -22,6 +22,13 @@ public class ResponseMessages {
             "        \"The username must be from 3 to 20 characters.\"\n" +
             "    ]";
 
+ public static final String REGISTER_EMPTY_REQUEST_MESSAGE = "[\n" +
+            "        \"The username is required.\",\n" +
+            "        \"The email is required.\",\n" +
+            "        \"The password is required.\",\n" +
+            "        \"The confirm password is required.\"\n" +
+            "    ]";
+
     public static final String ADD_CART_ITEM_BAD_REQUEST_MESSAGE = "[\n" +
             "        \"The id of the product is required\",\n" +
             "        \"The id of the user is required\",\n" +
