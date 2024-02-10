@@ -16,6 +16,7 @@ INSERT INTO products (name, description, price, quantity) VALUES
 
 INSERT INTO cart_items (product_id, quantity, user_id) VALUES
 ((SELECT id FROM products WHERE name = 'Product 1'), 7.0, (SELECT id FROM users WHERE username = 'adminTest')),
+((SELECT id FROM products WHERE name = 'Product 2'), 7.0, (SELECT id FROM users WHERE username = 'adminTest')),
 ((SELECT id FROM products WHERE name = 'Product 2'), 7.0, (SELECT id FROM users WHERE username = 'userTest'));
 
 INSERT INTO orders (user_id, created_at, status) VALUES
