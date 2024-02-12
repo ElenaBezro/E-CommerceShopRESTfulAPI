@@ -7,9 +7,7 @@ import com.bezro.shopRESTfulAPI.entities.CartItem;
 import java.util.List;
 
 public interface CartService {
-    CartItemResponse addCartItem(CreateCartItemDto cartItemDto, String username);
-
-    CartItemResponse updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, String username);
+    CartItemResponse addOrUpdateCartItem(CreateCartItemDto cartItemDto, String username, Long cartItemId);
 
     void removeCartItem(Long id);
 

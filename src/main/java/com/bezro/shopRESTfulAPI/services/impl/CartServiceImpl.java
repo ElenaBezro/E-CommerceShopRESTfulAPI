@@ -24,27 +24,45 @@ public class CartServiceImpl implements CartService {
     private final ProductService productService;
     private final UserService userService;
 
-    public CartItemResponse addCartItem(CreateCartItemDto cartItemDto, String username) {
-        //TODO: optimize requests in addCartItem and updateCartItem
+    public CartItemResponse addOrUpdateCartItem(CreateCartItemDto cartItemDto, String username, Long cartItemId) {
+        //TODO: extract userId from principal
+        Long userId = cartItemDto.getUserId();
+        userMatchPrincipalCheck(userId, username);
+
         Long productId = cartItemDto.getProductId();
         Product product = productService.findById(productId);
         sufficientProductStockCheck(product, cartItemDto);
 
-        Long userId = cartItemDto.getUserId();
-        userMatchPrincipalCheck(userId, username);
         Optional<CartItem> existingCartItem = findCartItemByProductIdAndUserId(productId, userId);
 
-        if (existingCartItem.isPresent()) {
-            return updateCartItemQuantity(existingCartItem.get().getId(), cartItemDto, username);
-        } else {
-            CartItem cartItem = new CartItem();
-            cartItem.setProduct(product);
-            cartItem.setUser(userService.findById(userId));
-            cartItem.setQuantity(cartItemDto.getQuantity());
-
-            CartItem storedCartItem = cartRepository.save(cartItem);
-            return new CartItemResponse(storedCartItem);
+        if (cartItemId != null && existingCartItem.isEmpty()) {
+            throw new InvalidMethodArgumentsException(
+                    "Cart item record with such combination of cartItemId, productId and userId does not exist");
         }
+
+        if (existingCartItem.isPresent()) {
+            if (cartItemId != null && !existingCartItem.get().getId().equals(cartItemId)) {
+                throw new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", cartItemId));
+            }
+
+            return updateCartItemQuantity(existingCartItem.get().getId(), cartItemDto);
+        } else {
+            return addCartItem(cartItemDto, userId, product);
+        }
+    }
+
+    private CartItemResponse addCartItem(CreateCartItemDto cartItemDto, Long userId, Product product) {
+        CartItem cartItem = createCartItemFromDto(cartItemDto, userId, product);
+        CartItem storedCartItem = cartRepository.save(cartItem);
+        return new CartItemResponse(storedCartItem);
+    }
+
+    private CartItem createCartItemFromDto(CreateCartItemDto cartItemDto, Long userId, Product product) {
+        CartItem cartItem = new CartItem();
+        cartItem.setProduct(product);
+        cartItem.setUser(userService.findById(userId));
+        cartItem.setQuantity(cartItemDto.getQuantity());
+        return cartItem;
     }
 
     private void sufficientProductStockCheck(Product product, CreateCartItemDto cartItemDto) {
@@ -66,13 +84,7 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findByProduct_IdAndUser_Id(productId, userId);
     }
 
-    public CartItemResponse updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, String username) {
-        Long userId = cartItemDto.getUserId();
-        userMatchPrincipalCheck(userId, username);
-        Long productId = cartItemDto.getProductId();
-        Product product = productService.findById(productId);
-        sufficientProductStockCheck(product, cartItemDto);
-
+    public CartItemResponse updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto) {
         CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
                 new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
         cartItemValidRecordCheck(cartItem, cartItemDto);
@@ -100,13 +112,11 @@ public class CartServiceImpl implements CartService {
     public List<CartItemResponse> getAllCartItems(String username) {
         User user = (User) userService.findByUsername(username);
         Long userId = user.getId();
-        Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
-        return cartItemList.orElseGet(ArrayList::new)
-                .stream()
+        List<CartItem> cartItemList = getAllCartItems(userId);
+        return cartItemList.stream()
                 .map(CartItemResponse::new).toList();
     }
 
-    //TODO: refactor two last methods: remove repeated code
     public List<CartItem> getAllCartItems(Long userId) {
         Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
         return cartItemList.orElseGet(ArrayList::new);

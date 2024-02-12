@@ -66,7 +66,7 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, Principal principal) {
-        return cartService.addCartItem(cartItemDto, principal.getName());
+        return cartService.addOrUpdateCartItem(cartItemDto, principal.getName(), null);
     }
 
     @PutMapping("/{id}")
@@ -106,7 +106,7 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, @PathVariable Long id, Principal principal) {
-        return cartService.updateCartItemQuantity(id, cartItemDto, principal.getName());
+        return cartService.addOrUpdateCartItem(cartItemDto, principal.getName(), id);
     }
 
     @DeleteMapping("/{id}")
