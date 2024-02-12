@@ -4,6 +4,7 @@ import com.bezro.shopRESTfulAPI.constants.ResponseMessages;
 import com.bezro.shopRESTfulAPI.dtos.CartItemResponse;
 import com.bezro.shopRESTfulAPI.dtos.CreateCartItemDto;
 import com.bezro.shopRESTfulAPI.dtos.CreateProductDto;
+import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.exceptions.ApiException;
 import com.bezro.shopRESTfulAPI.exceptions.ExceptionResponse;
 import com.bezro.shopRESTfulAPI.services.CartService;
@@ -66,7 +67,8 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, Principal principal) {
-        return cartService.addCartItem(cartItemDto, principal.getName());
+        Long userId = ((User) principal).getId();
+        return cartService.addOrUpdateCartItem(cartItemDto, userId, null);
     }
 
     @PutMapping("/{id}")
@@ -106,7 +108,8 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, @PathVariable Long id, Principal principal) {
-        return cartService.updateCartItemQuantity(id, cartItemDto, principal.getName());
+        Long userId = ((User) principal).getId();
+        return cartService.addOrUpdateCartItem(cartItemDto, userId, id);
     }
 
     @DeleteMapping("/{id}")
@@ -135,6 +138,7 @@ public class CartController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public List<CartItemResponse> getAllCartItems(Principal principal) {
-        return cartService.getAllCartItems(principal.getName());
+        Long userId = ((User) principal).getId();
+        return cartService.getAllCartItems(userId);
     }
 }

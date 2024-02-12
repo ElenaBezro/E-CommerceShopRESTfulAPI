@@ -159,7 +159,7 @@ class OrderServiceImplTest {
 
         when(((User) mockUserDetails).getId()).thenReturn(1L);
         when(userService.findByUsername("User")).thenReturn(mockUserDetails);
-        when(cartService.getAllCartItems(1L)).thenReturn(mockCartItems);
+        when(cartService.getAllCartItemsByUserId(1L)).thenReturn(mockCartItems);
         when(orderRepository.save(any())).thenReturn(mockOrder);
         when(orderItemService.getAllOrderItems(any())).thenReturn(mockOrderItems);
         doNothing().when(orderItemService).createOrderItem(any(), any());

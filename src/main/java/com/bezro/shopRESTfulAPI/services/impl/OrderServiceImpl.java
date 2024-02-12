@@ -29,12 +29,11 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
 
     private final OrderStatus INITIAL_ORDER_STATUS = OrderStatus.PROCESSING;
-    private final OrderStatus FINAL_ORDER_STATUS = OrderStatus.DELIVERED;
 
     @Transactional
     public OrderResponse createOrder(String userName) {
         User user = (User) userService.findByUsername(userName);
-        List<CartItem> cartItemList = cartService.getAllCartItems(user.getId());
+        List<CartItem> cartItemList = cartService.getAllCartItemsByUserId(user.getId());
         if (cartItemList.isEmpty()) {
             throw new EmptyCartException("Cannot create order with an empty cart");
         }
@@ -97,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
         Long userId = user.getId();
 
         List<Order> orders = orderRepository.findAllByUser_Id(userId);
-
+// TODO: refactor: create convertOrderToOrderResponse()
         return orders.stream().map(order -> {
             OrderResponse orderResponse = new OrderResponse();
             orderResponse.setId(order.getId());

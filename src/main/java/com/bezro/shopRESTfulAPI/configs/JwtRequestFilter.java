@@ -1,7 +1,9 @@
 package com.bezro.shopRESTfulAPI.configs;
 
 import com.bezro.shopRESTfulAPI.constants.JwtConstants;
+import com.bezro.shopRESTfulAPI.entities.User;
 import com.bezro.shopRESTfulAPI.jwtUtils.JwtTokenUtils;
+import com.bezro.shopRESTfulAPI.services.impl.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,6 +23,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtils;
+    private final UserService userService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -38,8 +43,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            User user = (User) userService.loadUserByUsername(username);
+            Long userId = jwtTokenUtils.getUserId(jwt);
+
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                    username,
+                    userId,
                     null,
                     jwtTokenUtils.getRoles(jwt).stream().map(role -> new SimpleGrantedAuthority((String) role)).toList()
             );

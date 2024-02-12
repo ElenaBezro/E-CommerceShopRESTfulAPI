@@ -1,5 +1,6 @@
 package com.bezro.shopRESTfulAPI.jwtUtils;
 
+import com.bezro.shopRESTfulAPI.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -31,13 +32,14 @@ public class JwtTokenUtils {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
         claims.put("roles", rolesList);
+        claims.put("userId", ((User) userDetails).getId());
         //TODO: add id into claims
 
         Date issuedDate = new Date();
         Date exriredDate = new Date(issuedDate.getTime() + jwtLifetime.toMillis());
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(String.valueOf(((User) userDetails).getId()))
                 .setIssuedAt(issuedDate)
                 .setExpiration(exriredDate)
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
@@ -63,6 +65,10 @@ public class JwtTokenUtils {
 
     public List<?> getRoles(String token) {
         return getAllClaimsFromToken(token).get("roles", List.class);
+    }
+
+    public Long getUserId(String token) {
+        return getAllClaimsFromToken(token).get("userId", Long.class);
     }
 
     public Claims getAllClaimsFromToken (String token) {
