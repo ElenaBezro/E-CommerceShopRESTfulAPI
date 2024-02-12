@@ -48,7 +48,7 @@ public class CartController {
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "400", description = "Insufficient product stock",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
-            @ApiResponse(responseCode = "400", description = "invalid combination of payload fields",
+            @ApiResponse(responseCode = "400", description = "Cart item already exists for the given product and user.",
                     content = @Content(schema = @Schema(implementation = ApiException.class))),
             @ApiResponse(responseCode = "401", description = "User should be authenticated",
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
@@ -66,7 +66,7 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, Principal principal) {
-        return cartService.addOrUpdateCartItem(cartItemDto, principal.getName(), null);
+        return cartService.addCartItem(cartItemDto, principal.getName());
     }
 
     @PutMapping("/{id}")
@@ -106,7 +106,7 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, @PathVariable Long id, Principal principal) {
-        return cartService.addOrUpdateCartItem(cartItemDto, principal.getName(), id);
+        return cartService.updateCartItemQuantity(cartItemDto, principal.getName(), id);
     }
 
     @DeleteMapping("/{id}")
