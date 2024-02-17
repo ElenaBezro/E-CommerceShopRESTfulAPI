@@ -2,9 +2,9 @@ package com.bezro.shopRESTfulAPI.services.impl;
 
 import com.bezro.shopRESTfulAPI.dtos.CreateProductDto;
 import com.bezro.shopRESTfulAPI.entities.Product;
+import com.bezro.shopRESTfulAPI.exceptions.InsufficientProductStockException;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.exceptions.NoContentException;
-import com.bezro.shopRESTfulAPI.exceptions.NotEnoughProductStockException;
 import com.bezro.shopRESTfulAPI.repositories.ProductRepository;
 import com.bezro.shopRESTfulAPI.services.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -80,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
     public void decreaseProductStock(Long productId, double decrementAmount) {
         Product product = findById(productId);
         if (product.getQuantity() < decrementAmount) {
-            throw new NotEnoughProductStockException(List.of("Not enough product with id:" + productId));
+            throw new InsufficientProductStockException("Not enough product with id:" + productId);
         }
         product.setQuantity(product.getQuantity() - decrementAmount);
         productRepository.save(product);
