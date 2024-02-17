@@ -32,7 +32,8 @@ public class CartServiceImpl implements CartService {
         //TODO: extract userId from principal
         log.info("Adding cart item for user: {}", username);
         Long userId = cartItemDto.getUserId();
-        userMatchPrincipalCheck(userId, username);
+        User user = (User) userService.findByUsername(username);
+        userMatchPrincipalCheck(userId, user);
 
         Long productId = cartItemDto.getProductId();
         Product product = productService.findById(productId);
@@ -44,15 +45,15 @@ public class CartServiceImpl implements CartService {
             throw new CartItemAlreadyExistsException("Cart item already exists for the given product and user.");
         }
 
-        CartItem cartItem = createCartItemFromDto(cartItemDto, userId, product);
+        CartItem cartItem = createCartItemFromDto(cartItemDto, user, product);
         CartItem storedCartItem = cartRepository.save(cartItem);
         return new CartItemResponse(storedCartItem);
     }
 
-    private CartItem createCartItemFromDto(CreateCartItemDto cartItemDto, Long userId, Product product) {
+    private CartItem createCartItemFromDto(CreateCartItemDto cartItemDto, User user, Product product) {
         CartItem cartItem = new CartItem();
         cartItem.setProduct(product);
-        cartItem.setUser(userService.findById(userId));
+        cartItem.setUser(user);
         cartItem.setQuantity(cartItemDto.getQuantity());
         return cartItem;
     }
@@ -65,9 +66,9 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    private void userMatchPrincipalCheck(Long userId, String username) {
-        log.info("Checking if user id {} matches logged in user id: {}", userId, username);
-        boolean isUserMatchPrincipal = userService.isUserMatchPrincipal(userId, username);
+    private void userMatchPrincipalCheck(Long userId, User user) {
+        log.info("Checking if user id matches logged in user id");
+        boolean isUserMatchPrincipal = Objects.equals(userId, user.getId());
         if (!isUserMatchPrincipal) {
             throw new InvalidMethodArgumentsException(
                     String.format("User id %d does not match logged in user id", userId));
@@ -81,7 +82,8 @@ public class CartServiceImpl implements CartService {
     public CartItemResponse updateCartItemQuantity(CreateCartItemDto cartItemDto, String username, Long cartItemId) {
         log.info("Updating cart item quantity for cart item ID: {}", cartItemId);
         Long userId = cartItemDto.getUserId();
-        userMatchPrincipalCheck(userId, username);
+        User user = (User) userService.findByUsername(username);
+        userMatchPrincipalCheck(userId, user);
 
         Long productId = cartItemDto.getProductId();
         Product product = productService.findById(productId);
