@@ -17,10 +17,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/products")
@@ -57,6 +59,7 @@ public class ProductController {
                     )
             )
             @Valid @RequestBody CreateProductDto productDto) {
+        log.info("Adding product: {}", productDto);
         return productService.addProduct(productDto);
     }
 
@@ -71,6 +74,7 @@ public class ProductController {
             @Parameter(description = "Page number", example = "1", required = true) @RequestParam(defaultValue = "0") int pageNumber,
             @Parameter(description = "Page size", example = "10", required = true) @RequestParam(defaultValue = "5") int pageSize) {
 
+        log.info("Getting products with pagination: pageNumber={}, pageSize={}", pageNumber, pageSize);
         return productService.getProductsPagination(pageNumber, pageSize, null);
     }
 
@@ -86,6 +90,7 @@ public class ProductController {
             @Parameter(description = "Page size", example = "10", required = true) @RequestParam(defaultValue = "5") int pageSize,
             @Parameter(description = "Sort order", example = "name", required = true) @RequestParam(defaultValue = "name") String sort) {
 
+        log.info("Getting products with pagination and sorting: pageNumber={}, pageSize={}, sort={}", pageNumber, pageSize, sort);
         return productService.getProductsPagination(pageNumber, pageSize, sort);
     }
 
@@ -120,6 +125,7 @@ public class ProductController {
                     )
             )
             @Valid @RequestBody CreateProductDto productDto, @PathVariable Long id) {
+        log.info("Updating product with id: {}", id);
         return productService.updateProduct(id, productDto);
     }
 
@@ -140,6 +146,7 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public void deleteProduct(@PathVariable Long id) {
+        log.info("Deleting product with id: {}", id);
         productService.deleteProduct(id);
     }
 }

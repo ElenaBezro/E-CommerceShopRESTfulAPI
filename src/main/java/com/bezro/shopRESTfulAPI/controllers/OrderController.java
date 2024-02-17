@@ -18,11 +18,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
@@ -47,7 +49,7 @@ public class OrderController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public OrderResponse createOrder(Principal principal) {
-
+        log.info("Creating order for user: {}", principal.getName());
         return orderService.createOrder(principal.getName());
     }
 
@@ -82,6 +84,7 @@ public class OrderController {
                     )
             )
             @Valid @RequestBody UpdateOrderDto updateOrderDto, @PathVariable Long orderId) {
+        log.info("Updating order status for order with id: {}", orderId);
         return orderService.updateOrderStatus(updateOrderDto, orderId);
     }
 
@@ -94,6 +97,7 @@ public class OrderController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public List<OrderResponse> getAllOrders(Principal principal) {
+        log.info("Getting all orders for user: {}", principal.getName());
         return orderService.getAllOrders(principal.getName());
     }
 }

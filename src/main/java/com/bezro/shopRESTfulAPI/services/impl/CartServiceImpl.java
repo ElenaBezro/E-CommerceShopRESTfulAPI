@@ -10,6 +10,7 @@ import com.bezro.shopRESTfulAPI.repositories.CartRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
 import com.bezro.shopRESTfulAPI.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
@@ -26,6 +28,7 @@ public class CartServiceImpl implements CartService {
 
     public CartItemResponse addCartItem(CreateCartItemDto cartItemDto, String username) {
         //TODO: optimize requests in addCartItem and updateCartItem
+        log.info("Adding cart item for user: {}", username);
         Long productId = cartItemDto.getProductId();
         Product product = productService.findById(productId);
         sufficientProductStockCheck(product, cartItemDto);
@@ -48,6 +51,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private void sufficientProductStockCheck(Product product, CreateCartItemDto cartItemDto) {
+        log.info("Checking product stock for product: {}", product.getName());
         boolean isProductStockSufficient = product.getQuantity() >= cartItemDto.getQuantity();
         if (!isProductStockSufficient) {
             throw new InvalidMethodArgumentsException("Product stock is not sufficient");
@@ -55,6 +59,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private void userMatchPrincipalCheck(Long userId, String username) {
+        log.info("Checking if user id {} matches logged in user id: {}", userId, username);
         boolean isUserMatchPrincipal = userService.isUserMatchPrincipal(userId, username);
         if (!isUserMatchPrincipal) {
             throw new InvalidMethodArgumentsException(
@@ -67,6 +72,7 @@ public class CartServiceImpl implements CartService {
     }
 
     public CartItemResponse updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, String username) {
+        log.info("Updating cart item quantity for cart item ID: {}", id);
         Long userId = cartItemDto.getUserId();
         userMatchPrincipalCheck(userId, username);
         Long productId = cartItemDto.getProductId();
@@ -92,12 +98,14 @@ public class CartServiceImpl implements CartService {
     }
 
     public void removeCartItem(Long id) {
+        log.info("Removing cart item with id: {}", id);
         CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
                 new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
         cartRepository.delete(cartItem);
     }
 
     public List<CartItemResponse> getAllCartItems(String username) {
+        log.info("Getting all cart items for user: {}", username);
         User user = (User) userService.findByUsername(username);
         Long userId = user.getId();
         Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
@@ -106,7 +114,6 @@ public class CartServiceImpl implements CartService {
                 .map(CartItemResponse::new).toList();
     }
 
-    //TODO: refactor two last methods: remove repeated code
     public List<CartItem> getAllCartItems(Long userId) {
         Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
         return cartItemList.orElseGet(ArrayList::new);

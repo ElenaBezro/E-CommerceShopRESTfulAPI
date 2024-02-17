@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
@@ -44,13 +46,18 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
     })
     public JwtResponse login(@Valid @RequestBody LoginUserDto loginRequest) {
+        log.info("Received login request: {}", loginRequest);
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         } catch (BadCredentialsException e) {
+            log.error("Invalid login credentials: {}", e.getMessage());
             throw new InvalidLoginCredentialsException("Login or password is invalid");
         }
-        return authService.login(loginRequest);
+
+        JwtResponse jwtResponse = authService.login(loginRequest);
+        log.info("User logged in successfully: {}", jwtResponse);
+        return jwtResponse;
     }
 
     @PostMapping("/register")
@@ -68,6 +75,10 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
     })
     public UserDto registerUser(@Valid @RequestBody RegistrationUserDto registrationRequest) {
-        return authService.createNewUser(registrationRequest);
+        log.info("Received registration request: {}", registrationRequest);
+
+        UserDto userDto = authService.createNewUser(registrationRequest);
+        log.info("User registered successfully: {}", userDto);
+        return userDto;
     }
 }
