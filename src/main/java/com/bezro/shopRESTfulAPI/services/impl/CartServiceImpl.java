@@ -5,6 +5,8 @@ import com.bezro.shopRESTfulAPI.dtos.CreateCartItemDto;
 import com.bezro.shopRESTfulAPI.entities.CartItem;
 import com.bezro.shopRESTfulAPI.entities.Product;
 import com.bezro.shopRESTfulAPI.entities.User;
+import com.bezro.shopRESTfulAPI.exceptions.CartItemAlreadyExistsException;
+import com.bezro.shopRESTfulAPI.exceptions.InsufficientProductStockException;
 import com.bezro.shopRESTfulAPI.exceptions.InvalidMethodArgumentsException;
 import com.bezro.shopRESTfulAPI.repositories.CartRepository;
 import com.bezro.shopRESTfulAPI.services.CartService;
@@ -27,34 +29,39 @@ public class CartServiceImpl implements CartService {
     private final UserService userService;
 
     public CartItemResponse addCartItem(CreateCartItemDto cartItemDto, String username) {
-        //TODO: optimize requests in addCartItem and updateCartItem
+        //TODO: extract userId from principal
         log.info("Adding cart item for user: {}", username);
+        Long userId = cartItemDto.getUserId();
+        userMatchPrincipalCheck(userId, username);
+
         Long productId = cartItemDto.getProductId();
         Product product = productService.findById(productId);
         sufficientProductStockCheck(product, cartItemDto);
 
-        Long userId = cartItemDto.getUserId();
-        userMatchPrincipalCheck(userId, username);
         Optional<CartItem> existingCartItem = findCartItemByProductIdAndUserId(productId, userId);
 
         if (existingCartItem.isPresent()) {
-            return updateCartItemQuantity(existingCartItem.get().getId(), cartItemDto, username);
-        } else {
-            CartItem cartItem = new CartItem();
-            cartItem.setProduct(product);
-            cartItem.setUser(userService.findById(userId));
-            cartItem.setQuantity(cartItemDto.getQuantity());
-
-            CartItem storedCartItem = cartRepository.save(cartItem);
-            return new CartItemResponse(storedCartItem);
+            throw new CartItemAlreadyExistsException("Cart item already exists for the given product and user.");
         }
+
+        CartItem cartItem = createCartItemFromDto(cartItemDto, userId, product);
+        CartItem storedCartItem = cartRepository.save(cartItem);
+        return new CartItemResponse(storedCartItem);
+    }
+
+    private CartItem createCartItemFromDto(CreateCartItemDto cartItemDto, Long userId, Product product) {
+        CartItem cartItem = new CartItem();
+        cartItem.setProduct(product);
+        cartItem.setUser(userService.findById(userId));
+        cartItem.setQuantity(cartItemDto.getQuantity());
+        return cartItem;
     }
 
     private void sufficientProductStockCheck(Product product, CreateCartItemDto cartItemDto) {
         log.info("Checking product stock for product: {}", product.getName());
         boolean isProductStockSufficient = product.getQuantity() >= cartItemDto.getQuantity();
         if (!isProductStockSufficient) {
-            throw new InvalidMethodArgumentsException("Product stock is not sufficient");
+            throw new InsufficientProductStockException("Product stock is not sufficient");
         }
     }
 
@@ -71,17 +78,19 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findByProduct_IdAndUser_Id(productId, userId);
     }
 
-    public CartItemResponse updateCartItemQuantity(Long id, CreateCartItemDto cartItemDto, String username) {
-        log.info("Updating cart item quantity for cart item ID: {}", id);
+    public CartItemResponse updateCartItemQuantity(CreateCartItemDto cartItemDto, String username, Long cartItemId) {
+        log.info("Updating cart item quantity for cart item ID: {}", cartItemId);
         Long userId = cartItemDto.getUserId();
         userMatchPrincipalCheck(userId, username);
+
         Long productId = cartItemDto.getProductId();
         Product product = productService.findById(productId);
         sufficientProductStockCheck(product, cartItemDto);
 
-        CartItem cartItem = cartRepository.findById(id).orElseThrow(() ->
-                new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", id)));
+        CartItem cartItem = cartRepository.findById(cartItemId).orElseThrow(() ->
+                new InvalidMethodArgumentsException(String.format("Cart item with id: %d does not exist", cartItemId)));
         cartItemValidRecordCheck(cartItem, cartItemDto);
+
         cartItem.setQuantity(cartItemDto.getQuantity());
 
         CartItem storedCartItem = cartRepository.save(cartItem);
@@ -108,9 +117,8 @@ public class CartServiceImpl implements CartService {
         log.info("Getting all cart items for user: {}", username);
         User user = (User) userService.findByUsername(username);
         Long userId = user.getId();
-        Optional<List<CartItem>> cartItemList = cartRepository.findByUser_Id(userId);
-        return cartItemList.orElseGet(ArrayList::new)
-                .stream()
+        List<CartItem> cartItemList = getAllCartItems(userId);
+        return cartItemList.stream()
                 .map(CartItemResponse::new).toList();
     }
 

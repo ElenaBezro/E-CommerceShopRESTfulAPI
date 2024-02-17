@@ -17,6 +17,8 @@ public class GlobalExceptionHandler {
             UserAlreadyExistsException.class,
             UserWithEmailAlreadyExistsException.class,
             InvalidMethodArgumentsException.class,
+            CartItemAlreadyExistsException.class,
+            InsufficientProductStockException.class,
             EmptyCartException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiException> handlePasswordMismatchException(RuntimeException exception) {

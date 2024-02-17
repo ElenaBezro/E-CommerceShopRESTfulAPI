@@ -65,8 +65,8 @@ class CartControllerIntegrationTest {
     @Sql(scripts = "classpath:db/dropDB.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithUserDetails("userTest")
     @jakarta.transaction.Transactional
-    @DisplayName("Test get cart item when add already existing cart item to the cart success")
-    void shouldReturnCartItem_WhenAddCartItemThatAlreadyInCart() throws Exception {
+    @DisplayName("Test get 400 when add already existing cart item to the cart")
+    void shouldGet400StatusCode_WhenAddCartItemThatAlreadyInCart() throws Exception {
         // Arrange
         // Act
         // Assert
@@ -77,16 +77,8 @@ class CartControllerIntegrationTest {
                                 " \"userId\": 2," +
                                 " \"quantity\": 5.5}"
                         ))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("3"))
-                .andExpect(jsonPath("$.product").exists())
-                .andExpect(jsonPath("$.product.id").value("2"))
-                .andExpect(jsonPath("$.product.name").value("Product 2"))
-                .andExpect(jsonPath("$.product.description").value("Description 2"))
-                .andExpect(jsonPath("$.product.price").value("5.0"))
-                .andExpect(jsonPath("$.product.quantity").value("7.0"))
-                .andExpect(jsonPath("$.userId").value("2"))
-                .andExpect(jsonPath("$.quantity").value(5.5));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Cart item already exists for the given product and user."));
     }
 
     @Test
@@ -324,7 +316,7 @@ class CartControllerIntegrationTest {
         // Arrange
         // Act
         // Assert
-        mockMvc.perform(put("/api/v1/cart/1")
+        mockMvc.perform(put("/api/v1/cart/3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content("{\"productId\": 7," +
@@ -345,7 +337,7 @@ class CartControllerIntegrationTest {
         // Arrange
         // Act
         // Assert
-        mockMvc.perform(put("/api/v1/cart/1")
+        mockMvc.perform(put("/api/v1/cart/3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content("{\"productId\": 2," +
