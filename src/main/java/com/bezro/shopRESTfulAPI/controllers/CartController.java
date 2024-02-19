@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/cart")
+@RequestMapping("/api/v1/cart-items")
 @Tag(description = "Endpoints for selecting, adding, updating and deleting cart items", name = "Cart")
 public class CartController {
     private final CartService cartService;

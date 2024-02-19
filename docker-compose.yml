@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  zalando_rest_api:
+    build: .
+#    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - apimysql-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/zalando_shop_api?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      - mysqldb
+    volumes:
+      - .m2:/root/.m2
+
+  mysqldb:
+    image: "mysql:8.0"
+#    restart: always
+    ports:
+      - 3307:3306
+    networks:
+      - apimysql-net
+    environment:
+      MYSQL_DATABASE: zalando_shop_api
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+
+networks:
+  apimysql-net:
+    driver: bridge

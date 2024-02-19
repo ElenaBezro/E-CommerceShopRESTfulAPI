@@ -16,5 +16,6 @@ spring.datasource.password=your_db_password`
 **Access Swagger UI:**
 
 You can access Swagger UI by navigating to http://localhost:8080/swagger-ui/index.html after starting the application.
+or https://zalandorestfulapi.ew.r.appspot.com/swagger-ui/index.html 
 
 
