@@ -19,11 +19,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/cart")
@@ -66,6 +68,7 @@ public class CartController {
                     )
             )
             @Valid @RequestBody CreateCartItemDto cartItemDto, Principal principal) {
+        log.info("Adding cart item: {}", cartItemDto);
         return cartService.addCartItem(cartItemDto, principal.getName());
     }
 
@@ -123,6 +126,7 @@ public class CartController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public void removeCartItem(@PathVariable Long id) {
+        log.info("Removing cart item with id: {}", id);
         cartService.removeCartItem(id);
     }
 
@@ -135,6 +139,7 @@ public class CartController {
                     content = @Content(schema = @Schema(implementation = ApiException.class)))
     })
     public List<CartItemResponse> getAllCartItems(Principal principal) {
+        log.info("Getting all cart items for user: {}", principal.getName());
         return cartService.getAllCartItems(principal.getName());
     }
 }

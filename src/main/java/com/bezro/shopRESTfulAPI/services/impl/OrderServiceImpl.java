@@ -13,12 +13,14 @@ import com.bezro.shopRESTfulAPI.services.OrderService;
 import com.bezro.shopRESTfulAPI.services.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -29,13 +31,14 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
 
     private final OrderStatus INITIAL_ORDER_STATUS = OrderStatus.PROCESSING;
-    private final OrderStatus FINAL_ORDER_STATUS = OrderStatus.DELIVERED;
 
     @Transactional
     public OrderResponse createOrder(String userName) {
+        log.info("Creating order for user: {}", userName);
         User user = (User) userService.findByUsername(userName);
         List<CartItem> cartItemList = cartService.getAllCartItems(user.getId());
         if (cartItemList.isEmpty()) {
+            log.info("Cannot create order with an empty cart for user: {}", userName);
             throw new EmptyCartException("Cannot create order with an empty cart");
         }
 
@@ -52,19 +55,23 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderItem> orderItems = orderItemService.getAllOrderItems(orderStored.getId());
 
+        log.info("Order created successfully for user: {}", userName);
         return createOrderResponse(orderStored, orderItems);
     }
 
     @Transactional
     public void convertCartItemsIntoOrderItems(List<CartItem> cartItemList, Order order) {
+        log.info("Converting cart items into order items for order: {}", order.getId());
         cartItemList.forEach(cartItem -> {
             orderItemService.createOrderItem(cartItem, order);
             cartService.removeCartItem(cartItem.getId());
             productService.decreaseProductStock(cartItem.getProduct().getId(), cartItem.getQuantity());
         });
+        log.info("Cart items converted into order items for order: {}", order.getId());
     }
 
     public void validateProductStockQuantity(List<CartItem> cartItemList) {
+        log.info("Validating product stock quantity for cart items");
         List<String> errors = new ArrayList<>();
         cartItemList.forEach(cartItem -> {
             double productStock = cartItem.getProduct().getQuantity();
@@ -73,8 +80,10 @@ public class OrderServiceImpl implements OrderService {
             }
         });
         if (!errors.isEmpty()) {
+            log.info("Product stock quantity validation failed: {}", errors);
             throw new NotEnoughProductStockException(errors);
         }
+        log.info("Product stock quantity validation successful");
     }
 
     public Order findById(Long id) {
@@ -84,34 +93,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public OrderResponse updateOrderStatus(UpdateOrderDto updateOrderDto, Long orderId) {
+        log.info("Updating order status for order: {}", orderId);
         Order order = findById(orderId);
         String statusString = updateOrderDto.getStatus();
         OrderStatus orderStatus = OrderStatus.fromString(statusString);
         order.setStatus(orderStatus);
         Order storedOrder = orderRepository.save(order);
+        log.info("Order status updated successfully for order: {}", orderId);
         return createOrderResponse(storedOrder, null);
     }
 
     public List<OrderResponse> getAllOrders(String userName) {
+        log.info("Getting all orders for user: {}", userName);
         User user = (User) userService.findByUsername(userName);
         Long userId = user.getId();
 
         List<Order> orders = orderRepository.findAllByUser_Id(userId);
 
-        return orders.stream().map(order -> {
-            OrderResponse orderResponse = new OrderResponse();
-            orderResponse.setId(order.getId());
-            orderResponse.setUserId(userId);
-            orderResponse.setCreatedAt(order.getCreatedAt());
-            orderResponse.setStatus(order.getStatus());
-            List<OrderItem> orderItems = order.getOrderItems();
-            orderResponse.setOrderItems(orderItems);
-            double totalPrice = orderItems.stream()
-                    .mapToDouble(orderItem -> orderItem.getPrice() * orderItem.getQuantity())
-                    .sum();
-            orderResponse.setTotalPrice(totalPrice);
-            return orderResponse;
-        }).toList();
+        log.info("Found {} orders for user: {}", orders.size(), userName);
+        return orders.stream().map(order -> createOrderResponse(order, null)).toList();
     }
 
     public OrderResponse createOrderResponse(Order order, List<OrderItem> orderItems) {
