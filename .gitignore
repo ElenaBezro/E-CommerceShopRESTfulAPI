@@ -3,6 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+resources/secrets.properties
+resources/secrets-dev.properties
+resources/secrets-test.properties
 
 ### STS ###
 .apt_generated
@@ -31,3 +34,8 @@ build/
 
 ### VS Code ###
 .vscode/
+/src/main/resources/secrets.properties
+/src/main/resources/secrets-dev.properties
+/src/main/resources/secrets-test.properties
+
+docker-compose.yml
